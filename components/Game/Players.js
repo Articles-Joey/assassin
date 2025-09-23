@@ -20,7 +20,7 @@ export default function Npcs() {
         <group>
             {players.map((item, item_i) => {
                 return (
-                    <mesh>
+                    <mesh key={`npc-${item_i}`}>
                         <Npc
                             key={item_i}
                             player_data={item}

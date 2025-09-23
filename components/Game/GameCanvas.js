@@ -93,9 +93,9 @@ function GameCanvas(props) {
 
             <LavaBurst />
 
-            <Physics debug>
+            <Physics>
 
-                <Debug>
+                <Debug scale={0}>
 
                     <Player />
 

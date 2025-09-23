@@ -120,9 +120,9 @@ function LeftPanelContent(props) {
                         Time Left: 0:00
                     </div>         
 
-                    {serverGameState?.players?.map(player_obj => {
+                    {serverGameState?.players?.map((player_obj, player_i) => {
                         return (
-                            <div>
+                            <div key={`player-${player_i}`}>
                                 {player_obj.username}
                             </div>
                         )

@@ -89,28 +89,9 @@ export default function FourFrogsSettingsModal({
                                         defaultKeyboardKey: 'D'
                                     },
                                     {
-                                        action: 'Drop Insect',
-                                        defaultKeyboardKey: 'Space'
+                                        action: 'Shoot',
+                                        defaultKeyboardKey: 'Touch or Click'
                                     },
-                                    {
-                                        action: 'Stop Powerup',
-                                        defaultKeyboardKey: 'ArrowDown'
-                                    },
-                                    {
-                                        emote: true,
-                                        action: 'Stick out Tongue',
-                                        defaultKeyboardKey: 'ArrowDown'
-                                    },
-                                    {
-                                        emote: true,
-                                        action: 'Rotate Left',
-                                        defaultKeyboardKey: 'ArrowLeft'
-                                    },
-                                    {
-                                        emote: true,
-                                        action: 'Rotate Right',
-                                        defaultKeyboardKey: 'ArrowRight'
-                                    }
                                 ].map(obj =>
                                     <div key={obj.action}>
                                         <div className="flex-header border-bottom pb-1 mb-1">

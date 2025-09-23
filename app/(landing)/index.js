@@ -284,7 +284,23 @@ export default function LobbyPage() {
                             Rules & Controls
                         </ArticlesButton>
 
-                        <Link href={'/'} className='w-50'>
+                        <Link
+                            href={`https://github.com/Articles-Joey/assassin`}
+                            target="_blank"
+                            className="w-50"
+                        >
+                            <ArticlesButton
+                                className={`w-100`}
+                                onClick={() => {
+
+                                }}
+                            >
+                                <i className="fab fa-github"></i>
+                                Github
+                            </ArticlesButton>
+                        </Link>
+
+                        {/* <Link href={'/'} className='w-50'>
                             <ArticlesButton
                                 className={`w-100`}
                                 small
@@ -295,7 +311,7 @@ export default function LobbyPage() {
                                 <i className="fad fa-sign-out fa-rotate-180"></i>
                                 Leave Game
                             </ArticlesButton>
-                        </Link>
+                        </Link> */}
 
                         <ArticlesButton
                             className={`w-50`}

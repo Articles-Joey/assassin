@@ -96,26 +96,47 @@ export default function GameInfoModal({
 
                 <Modal.Body className="flex-column p-3">
 
-                    <Link
-                        href={`https://github.com/Articles-Joey/assassin`}
-                        target="_blank"
-                        className="w-100"
-                    >
-                        <ArticlesButton
-                            onClick={() => {
-
-                            }}
+                    <div className="mb-3">
+                        <Link
+                            href={`https://github.com/Articles-Joey/assassin`}
+                            target="_blank"
+                            className="w-100"
                         >
-                            View Github Repo
-                        </ArticlesButton>
-                    </Link>
+                            <ArticlesButton
+                                onClick={() => {
+    
+                                }}
+                            >
+                                View Github Repo
+                            </ArticlesButton>
+                        </Link>
+                    </div>
 
-                    <iframe
+                    <div className="small text-muted mb-2">
+                        View video of game that inspired this game below.
+                    </div>
+
+                    <div>
+                        <div className="ratio ratio-16x9">
+                            <iframe
+                                width="100%"
+                                height="100%"
+                                src="https://www.youtube.com/embed/JBqNpDytBLg?start=8032"
+                                title="YouTube video player"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                referrerpolicy="strict-origin-when-cross-origin"
+                                allowfullscreen
+                            ></iframe>
+                        </div>
+                    </div>
+
+                    {/* <iframe
                         src={`https://youtu.be/JBqNpDytBLg?si=YhYNbpESn-nAnmln&t=695`}
                         title="Game Video"
                         frameBorder="0"
                         allowFullScreen
-                    />
+                    /> */}
 
                 </Modal.Body>
 

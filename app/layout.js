@@ -9,7 +9,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 // import "./globals.css";
 import "@/styles/index.scss";
+
 import SocketLogicHandler from "@/components/SocketLogicHandler";
+import PeerHandler from '@/components/PeerHandler';
+import LayoutClient from './layout-client';
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -22,7 +25,7 @@ import SocketLogicHandler from "@/components/SocketLogicHandler";
 // });
 
 export const metadata = {
-  title: "Ice Slide",
+  title: "Assassin",
   description: "",
 };
 
@@ -44,6 +47,8 @@ export default function RootLayout({ children }) {
       >
 
         <SocketLogicHandler />
+        <PeerHandler />
+        <LayoutClient />
 
         <AppRouterCacheProvider options={{ enableCssLayer: true }}>
           <ThemeProvider theme={theme}>

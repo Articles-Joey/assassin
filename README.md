@@ -2,6 +2,8 @@
 
 The sniper must figure out who the assassins are in the crowd of NPCs. Stop them with 3 bullets before they assassinate all the others!
 
+![Preview](public/img/preview.webp)
+
 ## Getting Started
 
 First, run the development server:

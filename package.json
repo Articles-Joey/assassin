@@ -4,8 +4,8 @@
   "private": false,
   "homepage": "https://assassin.articles.media",
   "scripts": {
-    "dev": "next dev -p 3036",
-    "build": "next build",
+    "dev": "next dev --webpack -p 3036",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "next lint"
   },

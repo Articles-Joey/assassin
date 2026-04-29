@@ -14,7 +14,7 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 import ArticlesButton from '@/components/UI/Button';
 
-import useFullscreen from '@/hooks/useFullScreen';
+import useFullscreen from '@articles-media/articles-dev-box/useFullscreen';
 import { useControllerStore } from '@/hooks/useControllerStore';
 
 import { useLocalStorageNew } from '@/hooks/useLocalStorageNew';

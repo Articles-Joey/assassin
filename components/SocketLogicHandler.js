@@ -3,16 +3,10 @@ import { useState, useEffect, useContext, useRef, memo } from 'react'
 
 import { useRouter, usePathname } from 'next/navigation';
 
-// Import session to detect change to sign in and sign out of socket
-// import { useSession } from 'lib/hooks'
-
-// import { useSelector, useDispatch } from 'react-redux'
-
-// import { format } from 'date-fns'
-
-import axios from "axios";
-
 import { useSocketStore } from "@/hooks/useSocketStore";
+
+const game_key = 'assassin'
+const game_name = 'Assassin'
 
 // SocketContextControl
 export default function SocketLogicHandler(props) {
@@ -42,7 +36,7 @@ export default function SocketLogicHandler(props) {
     //     connectSocket: state.connectSocket,
     // }));
 
-    const [lastPage, setLastPage] = useState('');
+    // const [lastPage, setLastPage] = useState('');
 
     // const [initialConnectAttempt, setInitialConnectAttempt] = useState(false);
     const initialized = useRef(false)
@@ -84,7 +78,7 @@ export default function SocketLogicHandler(props) {
         // Makes sure connect is only called once during reactStrictMode
         if (!initialized.current) {
             initialized.current = true
-            // connectSocket()
+            connectSocket()
         }
 
         // if (!socket.connected) return
@@ -136,6 +130,14 @@ export default function SocketLogicHandler(props) {
         console.log(`[📶 Socket] Page change emit`)
         socket.emit('activePage', pathname);
 
+        socket.on(`game:${game_key}-landing-details`, function (msg) {
+            console.log(`game:${game_key}-landing-details`, msg)
+
+            if (JSON.stringify(msg) !== JSON.stringify(lobbyDetails)) {
+                setLobbyDetails(msg)
+            }
+        });
+
         // router.events.on('routeChangeStart', handleRouteChange)
 
         return () => {
@@ -144,115 +146,9 @@ export default function SocketLogicHandler(props) {
             socket.off('force-page');
             socket.off('roomsList');
             socket.off('userCount', userCount);
+            socket.off(`game:${game_key}-landing-details`);
             // router.events.off('routeChangeStart', handleRouteChange)
         };
 
     }, [socket]);
-
-    useEffect(() => {
-
-        // https://github.com/vercel/next.js/discussions/52568
-
-        // return
-
-        const handleRouteChange = (url) => {
-
-            if (url == lastPage) {
-                console.log("Same page, ignore event")
-                return
-            }
-
-            setLastPage(prev => {
-                console.log("Prev", prev)
-                console.log("url", url)
-                return url
-            })
-
-            // console.log(
-            //     `App is changing to ${url} ${shallow ? 'with' : 'without'
-            //     } shallow routing`,
-            // );
-
-            if (socket?.connected) {
-                console.log(`[📶 Socket] Page change emit`)
-                socket.emit('activePage', url);
-            }
-
-        };
-
-        if (pathname !== lastPage) {
-            console.log("User is at a new pathname")
-            handleRouteChange(pathname)
-        }
-
-        // router.events.on('routeChangeStart', handleRouteChange);
-
-        // If the component is unmounted, unsubscribe
-        // from the event with the `off` method:
-        // return () => {
-        //     router.events.off('routeChangeStart', handleRouteChange);
-        // };
-
-    }, [pathname, lastPage]);
-
-    // useEffect(() => {
-
-    //     console.log("[📶Socket] Session has changed inside socket consumer")
-
-    // }, [session])
-
-    useEffect(() => {
-
-        return
-
-        console.log("socketData.connected")
-        // console.log("Socket authenticated:", socket.authenticated)
-        // console.log(userReduxState._id)
-
-        if (
-            socket?.connected
-            &&
-            !socket?.authenticated
-            // && 
-            // userReduxState._id
-        ) {
-
-            console.log("[📶Socket] Socket is now connected and not authenticated with a logged in user!")
-
-            // return
-
-            axios.get('/api/user/sockets/login', {
-                params: {
-                    socket: socket.id
-                }
-            })
-                .then((response) => {
-                    console.log("[📶Socket] socket-login Success")
-                    console.log(response.data)
-                    // setSocketData(prevState => ({
-                    //     ...prevState,
-                    //     authenticated: true
-                    // }))
-                })
-                .catch(function (error) {
-                    console.log("[📶Socket] socket-login Error")
-                    console.log(error);
-                });
-
-            // socket.emit('login', { userId: userReduxState?._id, session: session })
-            // setSocketLoggedIn(true);
-
-            // socket.on('connect', () => {
-            //     console.log("Connected to server!");
-            //     setConnected(true);
-            //     socket.emit('login', { userId: userReduxState?._id })
-            //     // socket.emit( 'isOnline', socketsToCheckIfOnline )
-            // });
-
-        }
-
-    }, [
-        socket?.connected,
-        // userReduxState._id
-    ]);
 }

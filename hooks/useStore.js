@@ -1,28 +1,30 @@
+import generateRandomNickname from '@/util/generateRandomNickname';
 import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
+import { persist } from 'zustand/middleware'
+
+import typicalZustandStoreExcludes from '@articles-media/articles-dev-box/typicalZustandStoreExcludes';
+import typicalZustandStoreStateSlice from '@articles-media/articles-dev-box/typicalZustandStoreStateSlice';
 
 export const useStore = create()(
   persist(
     (set, get) => ({
 
-      darkMode: true,
-      toggleDarkMode: () => set({ darkMode: !get().darkMode }),
-
-      theme: null,
-      // toggleTheme: () => set({ theme: !get().theme }),
-      setTheme: (value) => set({ theme: value }),
-
-      debug: false,
-      toggleDebug: () => set({ debug: !get().debug }),
-      setDebug: (value) => set({ debug: value }),
-      
-      musicVolume: 0.5,
-      setMusicVolume: (value) => set({ musicVolume: value }),
+      ...typicalZustandStoreStateSlice(set, get, generateRandomNickname),
 
     }),
     {
-      name: 'assassin-game-store', // name of the item in the storage (must be unique)
-      // storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
+      name: 'game-storage',
+      version: 1,
+      partialize: (state) =>
+        Object.fromEntries(
+          Object.entries(state).filter(([key]) => ![
+            // Exclude list of keys to not persist
+            ...typicalZustandStoreExcludes,
+          ].includes(key))
+        ),
+      onRehydrateStorage: () => (state) => {
+        state.setHasHydrated(true)
+      },
     },
   ),
 )

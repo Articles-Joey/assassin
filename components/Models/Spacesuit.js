@@ -11,27 +11,29 @@ import { SkeletonUtils } from 'three-stdlib'
 
 const link = `${process.env.NEXT_PUBLIC_CDN}games/Assets/Quaternius/men/Spacesuit-transformed.glb`
 
-export function Model(props) {
+export function ModelSpacesuit(props) {
   const group = React.useRef()
   const { scene, animations } = useGLTF(link)
   const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene])
   const { nodes, materials } = useGraph(clone)
   const { actions } = useAnimations(animations, group)
 
-  const { previewConfig } = props
+  // const group = useRef()
+  //     const { nodes, materials, animations } = useGLTF(link)
+  //     const { actions } = useAnimations(animations, group)
 
   useEffect(() => {
 
-    console.log("Actions", actions)
-    Object.values(actions).forEach((a) => a.stop());
+    if (!actions[props.action]) return;
 
-    if (props.action) {
-      actions[props.action].play();
-    } else {
-      actions[`Idle`].play();
-    }
+    Object.values(actions).forEach(action => action?.stop());
+    actions[props.action].play();
 
-  }, [actions, props.action]);
+    return () => {
+      Object.values(actions).forEach(action => action?.stop());
+    };
+
+  }, [props.action]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <group ref={group} {...props} dispose={null}>

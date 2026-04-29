@@ -306,11 +306,11 @@ function Player(props) {
             <group
                 ref={playerModelRef}
             >
-                <SpacesuitModel
+                {/* <SpacesuitModel
                     scale={2}
                     position={[0, -1, 0]}
                     action="Walk"
-                />
+                /> */}
             </group>
 
             <mesh ref={playerReachRef}>

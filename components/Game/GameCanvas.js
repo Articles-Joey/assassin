@@ -1,7 +1,7 @@
 import { createContext, createRef, forwardRef, memo, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
-import { Sky, useDetectGPU, useTexture, OrbitControls, Cylinder, QuadraticBezierLine, Text, Outlines, Billboard } from "@react-three/drei";
+import { Sky, useDetectGPU, useTexture, OrbitControls, Cylinder, QuadraticBezierLine, Text, Outlines, Billboard, Stats } from "@react-three/drei";
 
 import { NearestFilter, RepeatWrapping, TextureLoader, Vector3 } from "three";
 
@@ -23,32 +23,14 @@ import Npcs from "./Players";
 const game_name = 'Assassin'
 const game_key = 'assassin'
 
-const texture = new TextureLoader().load(`${process.env.NEXT_PUBLIC_CDN}games/Race Game/grass.jpg`)
-
-const GrassPlane = () => {
-
-    const width = 110; // Set the width of the plane
-    const height = 170; // Set the height of the plane
-
-    texture.magFilter = NearestFilter;
-    texture.wrapS = RepeatWrapping
-    texture.wrapT = RepeatWrapping
-    texture.repeat.set(5, 5)
-
-    return (
-        <>
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]}>
-                <planeGeometry attach="geometry" args={[width, height]} />
-                <meshStandardMaterial attach="material" map={texture} />
-            </mesh>
-        </>
-    );
-};
-
 function GameCanvas(props) {
 
     return (
         <Canvas camera={{ position: [0, 20, 20], fov: 50 }}>
+
+            {process.env.NODE_ENV === 'development' && <>
+                <Stats className="stats-overlay" />
+            </>}
 
             <OrbitControls
             // autoRotate={gameState?.status == 'In Lobby'}
@@ -97,7 +79,7 @@ function GameCanvas(props) {
 
                 <Debug scale={0}>
 
-                    <Player />
+                    {/* <Player /> */}
 
                     {/* <Npc /> */}
                     <Npcs />

@@ -34,8 +34,11 @@ export default function LeftPanelContent(props) {
     const debug = useStore((state) => state.debug)
     const toggleDebug = useStore((state) => state.toggleDebug)
 
-    const theme = useStore((state) => state.theme)
-    const setTheme = useStore((state) => state.setTheme)
+    const sidebar = useStore((state) => state.sidebar)
+    const toggleSidebar = useStore((state) => state.toggleSidebar)
+    const darkMode = useStore((state) => state.darkMode)
+    const toggleDarkMode = useStore((state) => state.toggleDarkMode)
+    const setShowSettingsModal = useStore((state) => state.setShowSettingsModal)
 
     const {
         cameraMode, setCameraMode,
@@ -53,13 +56,14 @@ export default function LeftPanelContent(props) {
 
                 <div className="card-body">
 
-                    <div className="mb-2">
+                    <div className="mb-2 d-flex flex-wrap">
+
                         <Link
                             href={'/'}
-                            className=""
+                            className="w-50"
                         >
                             <ArticlesButton
-                                className="w-50"
+                                className="w-100"
                                 small
                             >
                                 <i className="fad fa-arrow-alt-square-left"></i>
@@ -75,7 +79,7 @@ export default function LeftPanelContent(props) {
                                 if (isFullscreen) {
                                     exitFullscreen()
                                 } else {
-                                    requestFullscreen('assassin-game-page')
+                                    requestFullscreen()
                                 }
                             }}
                         >
@@ -83,6 +87,44 @@ export default function LeftPanelContent(props) {
                             {!isFullscreen && <span><i className='fad fa-expand'></i></span>}
                             <span>Fullscreen</span>
                         </ArticlesButton>
+
+                        <div className='w-50 d-flex'>
+                            <ArticlesButton
+                                // ref={el => elementsRef.current[4] = el}
+                                // active={activeIndex === 3}
+                                className={`w-100 flex-grow-1`}
+                                small
+                                onClick={() => {
+                                    setShowSettingsModal(true)
+                                }}
+                            >
+                                <i className="fad fa-cog"></i>
+                                Settings
+                            </ArticlesButton>
+                            <ArticlesButton
+                                // ref={el => elementsRef.current[4] = el}
+                                // active={activeIndex === 3}
+                                className={`flex-grow-0`}
+                                small
+                                onClick={() => {
+                                    toggleDarkMode()
+                                }}
+                            >
+                                {darkMode ? <i className="fad fa-moon"></i> : <i className="fad fa-sun"></i>}
+                                {/* <i className="fad fa-sun"></i> */}
+                            </ArticlesButton>
+                        </div>
+
+                        <ArticlesButton
+                            size="sm"
+                            className="w-50"
+                            active={sidebar}
+                            onClick={() => toggleSidebar()}
+                        >
+                            <i className="fad fa-bars"></i>
+                            Sidebar
+                        </ArticlesButton>
+
                     </div>
 
                     <div className="card-footer border">
@@ -151,47 +193,6 @@ export default function LeftPanelContent(props) {
                         >
                             Reset
                         </ArticlesButton>
-                    </div>
-
-                </div>
-            </div>
-
-            {/* Touch Controls */}
-            <div
-                className="card card-articles card-sm"
-            >
-                <div className="card-body">
-
-                    <div className="small text-muted">Touch Controls</div>
-
-                    <div className='d-flex flex-column'>
-
-                        <div>
-                            <ArticlesButton
-                                size="sm"
-                                className="w-50"
-                                active={!touchControlsEnabled}
-                                onClick={() => {
-                                    setTouchControlsEnabled(false)
-                                }}
-                            >
-                                <i className="fad fa-redo"></i>
-                                Off
-                            </ArticlesButton>
-
-                            <ArticlesButton
-                                size="sm"
-                                className="w-50"
-                                active={touchControlsEnabled}
-                                onClick={() => {
-                                    setTouchControlsEnabled(true)
-                                }}
-                            >
-                                <i className="fad fa-redo"></i>
-                                On
-                            </ArticlesButton>
-                        </div>
-
                     </div>
 
                 </div>
@@ -395,21 +396,6 @@ export default function LeftPanelContent(props) {
                             </div>
 
                             <div className='w-50'>
-
-                                <ArticlesButton
-                                    small
-                                    className="w-100"
-                                    onClick={() => {
-                                        if (theme == "Dark") {
-                                            setTheme("Light")
-                                        } else {
-                                            setTheme("Dark")
-                                        }
-                                    }}
-                                >
-                                    <i className="fad fa-eye-dropper"></i>
-                                    <span>Theme: {theme == "Dark" ? 'Dark' : 'Light'}</span>
-                                </ArticlesButton>
 
                                 {/* <DropdownButton
                                     variant="articles w-100"

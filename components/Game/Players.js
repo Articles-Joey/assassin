@@ -214,7 +214,7 @@ export function Npc({ player_data }) {
             <group ref={ref}>
                 <group ref={npcRef}>
 
-                    <SpacesuitModel scale={spotted ? 3 : 2} action={deadRef.current && lastSpotted > deadRef.current ? 'Death' : 'Walk'} />
+                    {/* <SpacesuitModel scale={spotted ? 3 : 2} action={deadRef.current && lastSpotted > deadRef.current ? 'Death' : 'Walk'} /> */}
 
                     {lastSpotted &&
                         <mesh>

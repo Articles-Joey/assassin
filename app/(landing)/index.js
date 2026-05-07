@@ -17,6 +17,16 @@ import { useLocalStorageNew } from '@/hooks/useLocalStorageNew';
 import { useSocketStore } from '@/hooks/useSocketStore';
 import { useStore } from '@/hooks/useStore';
 
+import useUserDetails from '@articles-media/articles-dev-box/useUserDetails';
+import useUserToken from '@articles-media/articles-dev-box/useUserToken';
+import NicknameInput from '@articles-media/articles-dev-box/NicknameInput';
+import GameMenuPrimaryButtonGroup from '@articles-media/articles-dev-box/GameMenuPrimaryButtonGroup';
+import SessionButton from '@articles-media/articles-dev-box/SessionButton';
+import { GamepadKeyboard, PieMenu } from '@articles-media/articles-gamepad-helper';
+const ReturnToLauncherButton = dynamic(() =>
+    import('@articles-media/articles-dev-box/ReturnToLauncherButton'),
+    { ssr: false }
+);
 const GameScoreboard = dynamic(() =>
     import('@articles-media/articles-dev-box/GameScoreboard'),
     { ssr: false }
@@ -26,19 +36,9 @@ const Ad = dynamic(() =>
     { ssr: false }
 );
 
-const ReturnToLauncherButton = dynamic(() =>
-    import('@articles-media/articles-dev-box/ReturnToLauncherButton'),
-    { ssr: false }
-);
-
-const SessionButton = dynamic(() =>
-    import('@articles-media/articles-dev-box/SessionButton'),
-    { ssr: false }
-);
-
-const game_key = 'assassin'
-const game_name = 'Assassin'
-const game_port = 3026
+const game_key = process.env.NEXT_PUBLIC_GAME_KEY
+const game_name = process.env.NEXT_PUBLIC_GAME_NAME
+const game_port = process.env.NEXT_PUBLIC_GAME_PORT
 
 export default function LobbyPage() {
 
@@ -48,18 +48,25 @@ export default function LobbyPage() {
         socket: state.socket,
     }));
 
-    const _hasHydrated = useStore((state) => state._hasHydrated)
-    const nickname = useStore((state) => state.nickname)
-    const setNickname = useStore((state) => state.setNickname)
-    const setShowInfoModal = useStore((state) => state.setShowInfoModal)
-    const setShowSettingsModal = useStore((state) => state.setShowSettingsModal)
-    const setShowCreditsModal = useStore((state) => state.setShowCreditsModal)
+    const {
+        data: userToken,
+        error: userTokenError,
+        isLoading: userTokenLoading,
+        mutate: userTokenMutate
+    } = useUserToken(
+        process.env.NEXT_PUBLIC_GAME_PORT
+    );
+
+    const {
+        data: userDetails,
+        error: userDetailsError,
+        isLoading: userDetailsLoading,
+        mutate: userDetailsMutate
+    } = useUserDetails({
+        token: userToken
+    });
+
     const lobbyDetails = useStore((state) => state.lobbyDetails)
-    const setLobbyDetails = useStore((state) => state.setLobbyDetails)
-    const randomNickname = useStore((state) => state.randomNickname)
-    const sceneKey = useStore((state) => state.sceneKey)
-    const setSceneKey = useStore((state) => state.setSceneKey)
-    const toggleDarkMode = useStore((state) => state.toggleDarkMode)
     const darkMode = useStore((state) => state.darkMode)
 
     useEffect(() => {
@@ -87,7 +94,7 @@ export default function LobbyPage() {
                 />
             </div>
 
-            <div className="container d-flex flex-column-reverse flex-lg-row justify-content-center align-items-center">
+            <div className="container d-flex flex-column-reverse flex-lg-row justify-content-center align-items-center py-3">
 
                 <div
                     style={{ "width": "20rem" }}
@@ -108,43 +115,10 @@ export default function LobbyPage() {
 
                         <div className='card-header d-flex align-items-center'>
 
-                            <div className="flex-grow-1">
+                            <NicknameInput
+                                useStore={useStore}
+                            />
 
-                                <div className="form-group articles mb-0">
-                                    <label htmlFor="nickname">Nickname</label>
-                                    {/* <SingleInput
-                                        value={nickname}
-                                        setValue={setNickname}
-                                        noMargin
-                                    /> */}
-                                    <div className="d-flex align-items-center">
-                                        <input
-                                            type="text"
-                                            value={_hasHydrated ? nickname : ''}
-                                            disabled={!_hasHydrated}
-                                            id="nickname"
-                                            name="nickname"
-                                            placeholder="Enter your nickname"
-                                            onChange={(e) => {
-                                                setNickname(e.target.value)
-                                            }}
-                                            className={`form-control form-control-sm`}
-                                        />
-                                        <ArticlesButton
-                                            small
-                                            className=""
-                                            onClick={() => {
-                                                randomNickname()
-                                            }}
-                                        >
-                                            <i className="fad fa-random"></i>
-                                        </ArticlesButton>
-                                    </div>
-                                </div>
-
-                                <div className='mt-1' style={{ fontSize: '0.8rem' }}>Visible to all players</div>
-
-                            </div>
                         </div>
 
                         <div className="card-body">
@@ -232,96 +206,54 @@ export default function LobbyPage() {
 
                         <div className="card-footer d-flex flex-wrap justify-content-center">
 
-                            <div className='d-flex w-50'>
-                                <ArticlesButton
-                                    className={`flex-grow-1`}
-                                    small
-                                    onClick={() => {
-                                        setShowSettingsModal(true)
-                                    }}
-                                >
-                                    <i className="fad fa-cog"></i>
-                                    Settings
-                                </ArticlesButton>
-                                <ArticlesButton
-                                    className={``}
-                                    small
-                                    onClick={() => {
-                                        toggleDarkMode()
-                                    }}
-                                >
-                                    {darkMode ?
-                                        <i className="fad fa-sun"></i>
-                                        :
-                                        <i className="fad fa-moon"></i>
-                                    }
-                                </ArticlesButton>
-                            </div>
-
-                            <ArticlesButton
-                                className={`w-50`}
-                                small
-                                onClick={() => {
-                                    setShowInfoModal({
-                                        game: game_name
-                                    })
-                                }}
-                            >
-                                <i className="fad fa-info-square"></i>
-                                Info
-                            </ArticlesButton>
-
-                            <Link
-                                href={`https://github.com/Articles-Joey/assassin`}
-                                target="_blank"
-                                className="w-50"
-                            >
-                                <ArticlesButton
-                                    className={`w-100`}
-                                    onClick={() => {
-
-                                    }}
-                                >
-                                    <i className="fab fa-github"></i>
-                                    Github
-                                </ArticlesButton>
-                            </Link>
-
-                            {/* <Link href={'/'} className='w-50'>
-                                <ArticlesButton
-                                    className={`w-100`}
-                                    small
-                                    onClick={() => {
-    
-                                    }}
-                                >
-                                    <i className="fad fa-sign-out fa-rotate-180"></i>
-                                    Leave Game
-                                </ArticlesButton>
-                            </Link> */}
-
-                            <ArticlesButton
-                                className={`w-50`}
-                                small
-                                onClick={() => {
-                                    setShowCreditsModal(true)
-                                }}
-                            >
-                                <i className="fad fa-users"></i>
-                                Credits
-                            </ArticlesButton>
+                            <GameMenuPrimaryButtonGroup
+                                useStore={useStore}
+                                type="Landing"
+                            />
 
                         </div>
 
                     </div>
 
+                    <SessionButton
+                        port={process.env.NEXT_PUBLIC_GAME_PORT}
+                        friendsButton={true}
+                    />
+
                     <ReturnToLauncherButton />
 
                 </div>
 
-                {/* <GameScoreboard game="Death Race" /> */}
+                <GameScoreboard
+                    game={process.env.NEXT_PUBLIC_GAME_NAME}
+                    style="Default"
+                    darkMode={darkMode ? true : false}
+                    prepend={
+                        <>
+                            {/* <div
+                                style={{
+                                    width: '100%',
+                                    height: '200px',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <RotatingMascot />
+                            </div> */}
+                        </>
+                    }
+                />
 
-                {/* <Ad section={"Games"} section_id={game_name} /> */}
+                <Ad
+                    style="Default"
+                    section={"Games"}
+                    section_id={process.env.NEXT_PUBLIC_GAME_NAME}
+                    darkMode={darkMode ? true : false}
+                    user_ad_token={userToken}
+                    userDetails={userDetails}
+                    userDetailsLoading={userDetailsLoading}
+                />
 
             </div>
         </div>

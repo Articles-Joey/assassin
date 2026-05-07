@@ -1,7 +1,7 @@
 // import { create } from 'zustand'
 import { createWithEqualityFn as create } from 'zustand/traditional'
 
-const initialPlayers = [...Array(30)].map( (obj, obj_i) => {
+const initialPlayers = [...Array(10)].map( (obj, obj_i) => {
     return ({
         npc: true,
         dead: false,

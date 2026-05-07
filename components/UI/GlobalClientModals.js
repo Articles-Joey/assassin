@@ -97,6 +97,7 @@ export default function GlobalClientModals() {
                                 ]
                             },
                             'Controls': {
+                                touchControls: true,
                                 // defaultKeyBindings: {
                                 //     // moveUp: "W",
                                 //     // moveDown: "S",
@@ -141,8 +142,6 @@ export default function GlobalClientModals() {
                 <CreditsModal
                     show={showCreditsModal}
                     setShow={setShowCreditsModal}
-                    owner="Articles-Joey"
-                    repo="assassin"
                 />
             }
         </>

@@ -10,20 +10,23 @@ import ControllerPreview from "@/components/ControllerPreview";
 import { useSocketStore } from "@/hooks/useSocketStore";
 import { useStore } from "@/hooks/useStore";
 
+import GameMenuPrimaryButtonGroup from '@articles-media/articles-dev-box/GameMenuPrimaryButtonGroup';
+
 export default function LeftPanelContent(props) {
 
     const {
         server,
-        players,
-        touchControlsEnabled,
-        setTouchControlsEnabled,
-        reloadScene,
+        // touchControlsEnabled,
+        // setTouchControlsEnabled,
+        // reloadScene,
         controllerState,
-        isFullscreen,
-        requestFullscreen,
-        exitFullscreen,
-        setShowMenu
+        // isFullscreen,
+        // requestFullscreen,
+        // exitFullscreen,
+        // setShowMenu
     } = props;
+
+    const players = useGameStore((state) => state.gameState.players)
 
     const {
         socket,
@@ -32,20 +35,22 @@ export default function LeftPanelContent(props) {
     }));
 
     const debug = useStore((state) => state.debug)
-    const toggleDebug = useStore((state) => state.toggleDebug)
+    const setDebug = useStore((state) => state.setDebug)
+    const reloadScene = useStore((state) => state.reloadScene)
+    const setShowMenu = useStore((state) => state.setShowMenu)
 
-    const sidebar = useStore((state) => state.sidebar)
-    const toggleSidebar = useStore((state) => state.toggleSidebar)
-    const darkMode = useStore((state) => state.darkMode)
-    const toggleDarkMode = useStore((state) => state.toggleDarkMode)
-    const setShowSettingsModal = useStore((state) => state.setShowSettingsModal)
+    // const sidebar = useStore((state) => state.sidebar)
+    // const toggleSidebar = useStore((state) => state.toggleSidebar)
+    // const darkMode = useStore((state) => state.darkMode)
+    // const toggleDarkMode = useStore((state) => state.toggleDarkMode)
+    // const setShowSettingsModal = useStore((state) => state.setShowSettingsModal)
 
     const {
         cameraMode, setCameraMode,
         teleport, setTeleport,
         playerLocation, setPlayerLocation,
         maxHeight, setMaxHeight,
-        shift,
+        shift, resetPlayers
         // touchControls, setTouchControls
     } = useGameStore()
 
@@ -56,82 +61,18 @@ export default function LeftPanelContent(props) {
 
                 <div className="card-body">
 
-                    <div className="mb-2 d-flex flex-wrap">
-
-                        <Link
-                            href={'/'}
-                            className="w-50"
-                        >
-                            <ArticlesButton
-                                className="w-100"
-                                small
-                            >
-                                <i className="fad fa-arrow-alt-square-left"></i>
-                                <span>Leave Game</span>
-                            </ArticlesButton>
-                        </Link>
-
-                        <ArticlesButton
-                            small
-                            className="w-50"
-                            active={isFullscreen}
-                            onClick={() => {
-                                if (isFullscreen) {
-                                    exitFullscreen()
-                                } else {
-                                    requestFullscreen()
-                                }
-                            }}
-                        >
-                            {isFullscreen && <span>Exit </span>}
-                            {!isFullscreen && <span><i className='fad fa-expand'></i></span>}
-                            <span>Fullscreen</span>
-                        </ArticlesButton>
-
-                        <div className='w-50 d-flex'>
-                            <ArticlesButton
-                                // ref={el => elementsRef.current[4] = el}
-                                // active={activeIndex === 3}
-                                className={`w-100 flex-grow-1`}
-                                small
-                                onClick={() => {
-                                    setShowSettingsModal(true)
-                                }}
-                            >
-                                <i className="fad fa-cog"></i>
-                                Settings
-                            </ArticlesButton>
-                            <ArticlesButton
-                                // ref={el => elementsRef.current[4] = el}
-                                // active={activeIndex === 3}
-                                className={`flex-grow-0`}
-                                small
-                                onClick={() => {
-                                    toggleDarkMode()
-                                }}
-                            >
-                                {darkMode ? <i className="fad fa-moon"></i> : <i className="fad fa-sun"></i>}
-                                {/* <i className="fad fa-sun"></i> */}
-                            </ArticlesButton>
-                        </div>
-
-                        <ArticlesButton
-                            size="sm"
-                            className="w-50"
-                            active={sidebar}
-                            onClick={() => toggleSidebar()}
-                        >
-                            <i className="fad fa-bars"></i>
-                            Sidebar
-                        </ArticlesButton>
-
+                    <div className="d-flex flex-wrap mb-2">
+                        <GameMenuPrimaryButtonGroup 
+                            useStore={useStore}
+                            type="GameMenu"
+                        />
                     </div>
 
                     <div className="card-footer border">
 
                         <div className='flex-header'>
                             <div>Server: {server}</div>
-                            <div>Players: {players.length || 0}/50</div>
+                            <div>Players: {players?.length || 0}/50</div>
                         </div>
 
                         {!socket?.connected &&
@@ -212,7 +153,7 @@ export default function LeftPanelContent(props) {
                             <ArticlesButton
                                 size="sm"
                                 className="w-50"
-                                onClick={reloadScene}
+                                onClick={() => reloadScene()}
                             >
                                 <i className="fad fa-redo"></i>
                                 Reload Game
@@ -221,10 +162,21 @@ export default function LeftPanelContent(props) {
                             <ArticlesButton
                                 size="sm"
                                 className="w-50"
-                                onClick={reloadScene}
+                                onClick={() => reloadScene()}
                             >
                                 <i className="fad fa-redo"></i>
                                 Reset Camera
+                            </ArticlesButton>
+
+                            <ArticlesButton
+                                size="sm"
+                                className="w-50"
+                                onClick={() => {
+                                    resetPlayers()
+                                }}
+                            >
+                                <i className="fad fa-redo"></i>
+                                Reset Players
                             </ArticlesButton>
                         </div>
 
@@ -349,7 +301,7 @@ export default function LeftPanelContent(props) {
                                     small
                                     className="w-100"
                                     onClick={() => {
-                                        toggleDebug()
+                                        setDebug(!debug)
                                     }}
                                 >
                                     <i className="fad fa-bug"></i>
@@ -379,9 +331,7 @@ export default function LeftPanelContent(props) {
                                                 <Dropdown.Item
                                                     key={index}
                                                     onClick={() => {
-                                                        // setTeleport(location.position)
-                                                        // setShowMenu(false)
-                                                        toggleDebug()
+
                                                     }}
                                                     className="d-flex justify-content-between"
                                                 >

@@ -79,7 +79,7 @@ function GameCanvas(props) {
 
                 <Debug scale={0}>
 
-                    {/* <Player /> */}
+                    <Player />
 
                     {/* <Npc /> */}
                     <Npcs />

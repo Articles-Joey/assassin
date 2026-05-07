@@ -38,24 +38,30 @@ export function Model(props) {
 useEffect(() => {
     if (!actions) return;
   
-    console.log("Actions", actions);
-    Object.values(actions).forEach((a) => a.stop());
-  
-    if (props.action && actions[props.action]) {
-      const action = actions[props.action];
-  
-      if (props.action === 'Death') {
+    // console.log("Actions", actions);
+    
+    const actionName = props.action || 'Idle';
+    const action = actions[actionName];
+
+    if (action) {
+      // Stop other actions first
+      // Object.values(actions).forEach((a) => {
+      //   if (a !== action) a.fadeOut(0.2);
+      // });
+
+      action.reset().fadeIn(0.2).play();
+
+      if (actionName === 'Death') {
         action.setLoop(THREE.LoopOnce, 1);
         action.clampWhenFinished = true;
       } else {
         action.setLoop(THREE.LoopRepeat, Infinity);
       }
-  
-      action.reset().play();
-    } else if (actions['Idle']) {
-      actions['Idle'].setLoop(THREE.LoopRepeat, Infinity);
-      actions['Idle'].play();
     }
+
+    return () => {
+      if (action) action.fadeOut(0.2);
+    };
   }, [actions, props.action]);
 
   return (

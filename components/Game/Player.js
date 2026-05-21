@@ -60,11 +60,6 @@ function Player(props) {
 
     const { controllerState, setControllerState } = useControllerStore()
 
-    const [character, setCharacter] = useLocalStorageNew("game:ocean-rings:character", {
-        model: 'Clownfish',
-        color: '#000000'
-    })
-
     // Attach event listeners when the component mounts
     useEffect(() => {
 
@@ -172,7 +167,7 @@ function Player(props) {
             // Get the current position of the sphere from the physics API
             api.position.subscribe((position) => {
 
-                playerModelRef.current.position.set(...position);
+                playerModelRef?.current?.position.set(...position);
 
             });
         }
@@ -247,6 +242,15 @@ function Player(props) {
         // .applyEuler(camera.rotation)
 
         api.velocity.set(direction.x, 0, direction.z)
+
+        const BOUNDS = 23; // Half of 23x23
+        if (Math.abs(pos.current[0]) > BOUNDS || Math.abs(pos.current[2]) > BOUNDS) {
+            api.position.set(
+                Math.max(-BOUNDS, Math.min(BOUNDS, pos.current[0])),
+                pos.current[1],
+                Math.max(-BOUNDS, Math.min(BOUNDS, pos.current[2]))
+            );
+        }
 
         if (
             (jump || touchControls.jump) 

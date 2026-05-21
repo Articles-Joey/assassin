@@ -6,19 +6,27 @@ The sniper must figure out who the assassins are in the crowd of NPCs. Stop them
 
 ## Getting Started
 
-First, run the development server:
+First you will need to setup a .env file from the .env.sample provided.
+
+Then development server can be run:
 
 ```bash
 npm run dev
 ```
 
+## Scripts
+
+In the scripts folder is reset_public and sync_to_s3. This is only for Articles Media usage. Allows for putting public folder to CloudFront to lower Vercel charges for the public facing site.
+
 ## Multiplayer
 
-Aiming to have multiplayer via P2P and Websockets. Websocket backend code is not in this repo or available at this time. P2P code will be included here.
+Two types of multiplayer, one is local play with up to four controllers, or via websockets with friends online!
 
 ## Inspiration
 
 [Hidden in Plain Sight: Assassin](https://store.steampowered.com/app/303590/Hidden_in_Plain_Sight/)
 
-## Attribution
-
+## Attributions
+[Character Models - Quaternius](https://quaternius.com/packs/ultimatemodularcharacters.html)  
+[Crosshair Icon - stockesdesign](https://www.magnific.com/icon/targets_5410994#fromView=search&page=1&position=0&uuid=bab299c9-14a2-42d6-bbbe-b0a5a62833c3)
+[Sword Font - Vladimir Nikolic](https://www.dafont.com/sword.font?text=%28Assassin%29)

@@ -10,7 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@articles-media/articles-dev-box": "^1.0.42",
+    "@articles-media/articles-dev-box": "^1.3.5",
     "@articles-media/articles-gamepad-helper": "^0.0.13",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
@@ -33,7 +33,8 @@
     "sass": "^1.95.0",
     "socket.io-client": "^4.8.1",
     "swr": "^2.3.6",
-    "three": "^0.178.0"
+    "three": "^0.178.0",
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

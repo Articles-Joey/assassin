@@ -6,27 +6,22 @@ import { Dropdown, DropdownButton } from "react-bootstrap";
 import { useGameStore } from "@/hooks/useGameStore";
 import ArticlesButton from "@/components/UI/Button";
 
-import ControllerPreview from "@/components/ControllerPreview";
+// import ControllerPreview from "@/components/ControllerPreview";
 import { useSocketStore } from "@/hooks/useSocketStore";
 import { useStore } from "@/hooks/useStore";
 
 import GameMenuPrimaryButtonGroup from '@articles-media/articles-dev-box/GameMenuPrimaryButtonGroup';
+import { useRouter, useSearchParams } from "next/navigation";
+import DebugPanel from "./DebugPanel";
+import GameDetailsPanel from "./GameDetailsPanel";
 
 export default function LeftPanelContent(props) {
 
-    const {
-        server,
-        // touchControlsEnabled,
-        // setTouchControlsEnabled,
-        // reloadScene,
-        controllerState,
-        // isFullscreen,
-        // requestFullscreen,
-        // exitFullscreen,
-        // setShowMenu
-    } = props;
+    const searchParams = useSearchParams()
+    const params = Object.fromEntries(searchParams.entries());
+    const { server } = params
 
-    const players = useGameStore((state) => state.gameState.players)
+    const players = useGameStore((state) => state.gameState?.players)
 
     const {
         socket,
@@ -46,12 +41,10 @@ export default function LeftPanelContent(props) {
     // const setShowSettingsModal = useStore((state) => state.setShowSettingsModal)
 
     const {
-        cameraMode, setCameraMode,
-        teleport, setTeleport,
-        playerLocation, setPlayerLocation,
+        playerLocation,
         maxHeight, setMaxHeight,
-        shift, resetPlayers
-        // touchControls, setTouchControls
+        shift,
+        gameState
     } = useGameStore()
 
     return (
@@ -61,50 +54,73 @@ export default function LeftPanelContent(props) {
 
                 <div className="card-body">
 
-                    <div className="d-flex flex-wrap mb-2">
-                        <GameMenuPrimaryButtonGroup 
+                    <div className="d-flex flex-wrap mb-3">
+                        <GameMenuPrimaryButtonGroup
                             useStore={useStore}
                             type="GameMenu"
+                            useRouter={useRouter}
                         />
                     </div>
 
-                    <div className="card-footer border">
+                    {server &&
+                        <div className="card-footer border">
 
-                        <div className='flex-header'>
-                            <div>Server: {server}</div>
-                            <div>Players: {players?.length || 0}/50</div>
-                        </div>
+                            <div className='flex-header'>
+                                <div>Server: {server}</div>
+                                <div>Players: {players?.length || 0}/4</div>
+                            </div>
 
-                        {!socket?.connected &&
-                            <div
-                                className=""
-                            >
+                            {/* <div className="mb-2">
+                                Status: {gameState?.status || 'N/A'}
+                            </div>
 
-                                <div className="">
-
-                                    <div className="h6 mb-1">Not connected</div>
-
+                            <div>
+                                {gameState?.status == 'In Lobby' &&
                                     <ArticlesButton
-                                        className="w-100 "
                                         small
+                                        className="w-100"
                                         onClick={() => {
-                                            console.log("Reconnect")
-                                            socket.connect()
+                                            socket.emit("start-game")
                                         }}
                                     >
-                                        <i className="fad fa-arrow-alt-square-left"></i>
-                                        Reconnect!
+                                        Start Game
                                     </ArticlesButton>
+                                }
+                            </div> */}
+
+                            {(!socket?.connected && server) &&
+                                <div
+                                    className=""
+                                >
+
+                                    <div className="">
+
+                                        <div className="h6 mb-1">Not connected</div>
+
+                                        <ArticlesButton
+                                            className="w-100 "
+                                            small
+                                            onClick={() => {
+                                                console.log("Reconnect")
+                                                socket.connect()
+                                            }}
+                                        >
+                                            <i className="fad fa-arrow-alt-square-left"></i>
+                                            Reconnect!
+                                        </ArticlesButton>
+
+                                    </div>
 
                                 </div>
+                            }
 
-                            </div>
-                        }
-
-                    </div>
+                        </div>
+                    }                    
 
                 </div>
             </div>
+
+            <GameDetailsPanel />
 
             <div
                 className="card card-articles card-sm"
@@ -140,298 +156,8 @@ export default function LeftPanelContent(props) {
             </div>
 
             {/* Debug Controls */}
-            <div
-                className="card card-articles card-sm"
-            >
-                <div className="card-body">
-
-                    <div className="small text-muted">Debug Controls</div>
-
-                    <div className='d-flex flex-column'>
-
-                        <div>
-                            <ArticlesButton
-                                size="sm"
-                                className="w-50"
-                                onClick={() => reloadScene()}
-                            >
-                                <i className="fad fa-redo"></i>
-                                Reload Game
-                            </ArticlesButton>
-
-                            <ArticlesButton
-                                size="sm"
-                                className="w-50"
-                                onClick={() => reloadScene()}
-                            >
-                                <i className="fad fa-redo"></i>
-                                Reset Camera
-                            </ArticlesButton>
-
-                            <ArticlesButton
-                                size="sm"
-                                className="w-50"
-                                onClick={() => {
-                                    resetPlayers()
-                                }}
-                            >
-                                <i className="fad fa-redo"></i>
-                                Reset Players
-                            </ArticlesButton>
-                        </div>
-
-                        <div className='d-flex'>
-
-                            {/* Teleport Mode */}
-                            <div className='w-50'>
-                                <DropdownButton
-                                    variant="articles w-100"
-                                    size='sm'
-                                    id="dropdown-basic-button"
-                                    className="dropdown-articles"
-                                    title={
-                                        <span>
-                                            <i className="fad fa-ufo"></i>
-                                            <span>Teleport</span>
-                                        </span>
-                                    }
-                                >
-
-                                    <div style={{ maxHeight: '600px', overflowY: 'auto', width: '200px' }}>
-
-                                        {[
-                                            {
-                                                name: '20',
-                                                position: [-4, 20, 0]
-                                            },
-                                            {
-                                                name: '30',
-                                                position: [-4, 31, 0]
-                                            },
-                                            {
-                                                name: '100',
-                                                position: [-4, 101, 0]
-                                            },
-                                            {
-                                                name: 'Sprint 1 116',
-                                                position: [-28, 116.5, 0]
-                                            },
-                                            {
-                                                name: 'Sprint 2 132',
-                                                position: [27, 131, 0]
-                                            }
-                                        ]
-                                            .map(location =>
-                                                <Dropdown.Item
-                                                    key={location.name}
-                                                    onClick={() => {
-                                                        setTeleport(location.position)
-                                                        setShowMenu(false)
-                                                    }}
-                                                    className="d-flex justify-content-between"
-                                                >
-
-                                                    {maxHeight > location.position[1] ?
-                                                        <i className="fad fa-unlock"></i>
-                                                        :
-                                                        <i className="fad fa-lock"></i>
-                                                    }
-
-                                                    {location.name}
-                                                </Dropdown.Item>
-                                            )}
-
-                                    </div>
-
-                                </DropdownButton>
-                            </div>
-
-                            {/* Camera Mode */}
-                            <div className='w-50'>
-                                <DropdownButton
-                                    variant="articles w-100"
-                                    size='sm'
-                                    id="dropdown-basic-button"
-                                    className="dropdown-articles"
-                                    title={
-                                        <span>
-                                            <i className="fad fa-camera"></i>
-                                            <span>Camera</span>
-                                        </span>
-                                    }
-                                >
-
-                                    <div style={{ maxHeight: '600px', overflowY: 'auto', width: '200px' }}>
-
-                                        {[
-                                            {
-                                                name: 'Free',
-                                            },
-                                            {
-                                                name: 'Player',
-                                            }
-                                        ]
-                                            .map(location =>
-                                                <Dropdown.Item
-                                                    key={location.name}
-                                                    active={cameraMode == location.name}
-                                                    onClick={() => {
-                                                        setCameraMode(location.name)
-                                                        setShowMenu(false)
-                                                    }}
-                                                    className="d-flex justify-content-between"
-                                                >
-                                                    <i className="fad fa-camera"></i>
-                                                    {location.name}
-                                                </Dropdown.Item>
-                                            )}
-
-                                    </div>
-
-                                </DropdownButton>
-                            </div>
-
-                        </div>
-
-                        <div className='d-flex'>
-
-                            <div className='w-50'>
-
-                                <ArticlesButton
-                                    small
-                                    className="w-100"
-                                    onClick={() => {
-                                        setDebug(!debug)
-                                    }}
-                                >
-                                    <i className="fad fa-bug"></i>
-                                    <span>Debug: {debug ? 'True' : 'Disable'}</span>
-                                </ArticlesButton>
-
-                                {/* <DropdownButton
-                                    variant="articles w-100"
-                                    size='sm'
-                                    id="dropdown-basic-button"
-                                    className="dropdown-articles"
-                                    title={
-                                        <span>
-                                            <i className="fad fa-bug"></i>
-                                            <span>Debug: {debug ? 'True' : 'Disable'}</span>
-                                        </span>
-                                    }
-                                >
-
-                                    <div style={{ maxHeight: '600px', overflowY: 'auto', width: '200px' }}>
-
-                                        {[
-                                            true,
-                                            false
-                                        ]
-                                            .map((choice, index) =>
-                                                <Dropdown.Item
-                                                    key={index}
-                                                    onClick={() => {
-
-                                                    }}
-                                                    className="d-flex justify-content-between"
-                                                >
-                                                    {choice ? 'Enable' : 'Disable'}
-                                                </Dropdown.Item>
-                                            )}
-
-                                    </div>
-
-                                </DropdownButton> */}
-
-                            </div>
-
-                            <div className='w-50'>
-
-                                {/* <DropdownButton
-                                    variant="articles w-100"
-                                    size='sm'
-                                    id="dropdown-basic-button"
-                                    className="dropdown-articles"
-                                    title={
-                                        <span>
-                                            <i className="fad fa-eye-dropper"></i>
-                                            <span>Theme</span>
-                                        </span>
-                                    }
-                                >
-
-                                    <div style={{ maxHeight: '600px', overflowY: 'auto', width: '200px' }}>
-
-                                        {[
-                                            {
-                                                name: 'Dark',
-                                            },
-                                            {
-                                                name: 'Light',
-                                            }
-                                        ]
-                                            .map(location =>
-                                                <Dropdown.Item
-                                                    key={location.name}
-                                                    active={cameraMode == location.name}
-                                                    onClick={() => {
-                                                        setCameraMode(location.name)
-                                                        setShowMenu(false)
-                                                    }}
-                                                    className="d-flex justify-content-between"
-                                                >
-                                                    <i className="fad fa-camera"></i>
-                                                    {location.name}
-                                                </Dropdown.Item>
-                                            )}
-
-                                    </div>
-
-                                </DropdownButton> */}
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-            </div>
-
-            {controllerState?.connected &&
-                <div className="panel-content-group p-0 text-dark">
-
-                    <div className="p-1 border-bottom border-dark">
-                        <div className="fw-bold" style={{ fontSize: '0.7rem' }}>
-                            {controllerState?.id}
-                        </div>
-                    </div>
-
-                    <div className='p-1'>
-                        <ArticlesButton
-                            small
-                            className="w-100"
-                            active={showControllerState}
-                            onClick={() => {
-                                setShowControllerState(prev => !prev)
-                            }}
-                        >
-                            {showControllerState ? 'Hide' : 'Show'} Controller Preview
-                        </ArticlesButton>
-                    </div>
-
-                    {showControllerState && <div className='p-3'>
-
-                        <ControllerPreview
-                            controllerState={controllerState}
-                            showJSON={true}
-                            showVibrationControls={true}
-                            maxHeight={300}
-                            showPreview={true}
-                        />
-                    </div>}
-
-                </div>
+            {debug &&
+                <DebugPanel />
             }
 
         </div>

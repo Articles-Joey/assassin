@@ -90,3 +90,17 @@ $shadow-articles: 0 0 0 1px rgba(0, 0, 0, 25%), 0 2px 3px rgba(0, 0, 0, 20%);
     justify-content: space-between;
     align-items: center;
 }
+
+@font-face {
+    font-family: "Sword";
+    src: url("/font/Sword.ttf") format("truetype");
+    //   src: url('/font/stencilla.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+    /* Optional: Controls font loading behavior */
+}
+
+.SwordFont {
+    font-family: "Sword", cursive, sans-serif;
+}

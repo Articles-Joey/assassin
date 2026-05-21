@@ -61,13 +61,6 @@ export const useGameStore = create((set) => ({
         }))
     },
 
-    serverGameState: {},
-    setServerGameState: (newValue) => {
-        set((prev) => ({
-            serverGameState: newValue
-        }))
-    },
-
     maxHeight: 0,
     setMaxHeight: (newValue) => {
         set((prev) => ({

@@ -14,11 +14,11 @@ import "@articles-media/articles-dev-box/dist/style.css";
 
 import "@articles-media/articles-gamepad-helper/dist/articles-gamepad-helper.css";
 
-import SocketLogicHandler from "@/components/SocketLogicHandler";
-import PeerHandler from '@/components/PeerHandler';
+import SocketLogicHandler from "@/components/Handlers/SocketLogicHandler";
+// import PeerHandler from '@/components/Handlers/PeerHandler';
 import LayoutClient from './layout-client';
 import { Suspense } from 'react';
-import GlobalClientModals from '@/components/UI/GlobalClientModals';
+import LocalPlayHandler from '@/components/Handlers/LocalPlayHandler';
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -41,23 +41,18 @@ export default function RootLayout({ children }) {
 
       <head>
 
-        {/* <link
-          rel="stylesheet"
-          href={`${process.env.NEXT_PUBLIC_CDN}fonts/fontawsome/css/all.min.css`}
-        /> */}
-
       </head>
 
       <body
       // className={`${geistSans.variable} ${geistMono.variable}`}
       >
-
-        <SocketLogicHandler />
-        <PeerHandler />
+            
         <LayoutClient />
 
         <Suspense>
-          <GlobalClientModals />
+          {/* <PeerHandler /> */}
+          <SocketLogicHandler />
+          <LocalPlayHandler />
         </Suspense>
 
         <AppRouterCacheProvider options={{ enableCssLayer: true }}>

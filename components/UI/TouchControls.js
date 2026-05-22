@@ -1,41 +1,56 @@
 import { memo, useEffect, useState } from "react";
 
 import ArticlesButton from "@/components/UI/Button"
-import { useControlsStore, useGameStore } from "@/hooks/useGameStore"
+// import { useControlsStore, useGameStore } from "@/hooks/useGameStore"
+import useTouchControlsStore from "@/hooks/useTouchControlsStore";
+import { useStore } from "@/hooks/useStore";
+import { useGameStore } from "@/hooks/useGameStore";
+import classNames from "classnames";
+import useGameHelpers from "@/hooks/useGameHelpers";
+import u from "@articles-media/articles-gamepad-helper/GamepadKeyboard";
 
 const arePropsEqual = (prevProps, nextProps) => {
     // Compare all props for equality
     return JSON.stringify(prevProps) === JSON.stringify(nextProps);
 };
 
-function JumpButtonBase() {
+function ActionButtons() {
 
-    const {
-        touchControls, setTouchControls
-    } = useControlsStore()
+    const setTouchControls = useTouchControlsStore(state => state.setTouchControls);
 
     return (
-        <ArticlesButton
-            onClick={() => {
-                console.log("Jump!")
-                setTouchControls({
-                    ...touchControls,
-                    jump: true
-                })
-            }}
-        >
-            Jump
-        </ArticlesButton>
+        <div className="action-buttons g-3">
+
+            <ArticlesButton
+                className="button jump-button"
+                onClick={() => {
+                    const touchControls = useTouchControlsStore.getState().touchControls;
+                    console.log("Jump!")
+                    setTouchControls({
+                        ...touchControls,
+                        jump: true
+                    })
+                }}
+            >
+                Attack
+            </ArticlesButton>
+
+        </div>
     )
 }
 
-const JumpButton = memo(JumpButtonBase, arePropsEqual);
+export default function TouchControls(props) {
 
-function TouchControlsBase(props) {
+    // const {
+    //     touchControlsEnabled,
+    // } = props;
 
-    const {
-        touchControlsEnabled,
-    } = props;
+    const sceneKey = useStore(state => state.sceneKey)
+    const cameraMode = useGameStore(state => state.cameraMode)
+
+    const touchControls = useTouchControlsStore(state => state.touchControls);
+    const setTouchControls = useTouchControlsStore(state => state.setTouchControls);
+    const touchControlsEnabled = useTouchControlsStore(state => state.enabled);
 
     const [nippleCreated, setNippleCreated] = useState(false)
 
@@ -43,8 +58,12 @@ function TouchControlsBase(props) {
     const [nDirection, setnDirection] = useState(false)
 
     const {
-        touchControls, setTouchControls
-    } = useControlsStore()
+        usersPlayer
+    } = useGameHelpers()
+
+    // const {
+    //     touchControls, setTouchControls
+    // } = useTouchControlsStore()
 
     function startNipple() {
 
@@ -78,99 +97,146 @@ function TouchControlsBase(props) {
                 setnDirection(false)
                 dragDistance = 0
                 dragDirection = false
+                const currentControls = useTouchControlsStore.getState().touchControls;
                 setTouchControls({
-                    ...touchControls,
+                    ...currentControls,
                     left: false,
-                    right: false
+                    right: false,
+                    up: false,
+                    down: false,
+                    joystickVector: { x: 0, y: 0 }
                 })
             }
 
         })
-        .on('move', function (evt, data) {
+            .on('move', function (evt, data) {
 
-            // debug(data);
-            dragDistance = data.distance
-            console.log("2", dragDistance)
+                // debug(data);
+                dragDistance = data.distance
+                // console.log("2", dragDistance, data.vector)
 
-            if (dragDistance > 15 && dragDirection) {
+                if (dragDistance > 5) {
 
-                if (dragDirection == 'left') setTouchControls({
-                    ...touchControls,
-                    left: true,
-                    right: false
-                })
+                    const currentControls = useTouchControlsStore.getState().touchControls;
+                    setTouchControls({
+                        ...currentControls,
+                        joystickVector: data.vector
+                    })
 
-                if (dragDirection == 'right') setTouchControls({
-                    ...touchControls,
-                    left: false,
-                    right: true
-                })
-
-            } else {
-                setTouchControls({
-                    ...touchControls,
-                    left: false,
-                    right: false
-                })
-            }
-
-        })
-        .on(' ' +
-            'dir:up plain:up dir:left plain:left dir:down ' +
-            'plain:down dir:right plain:right',
-            function (evt, data) {
-
-                if (evt.type == 'move') {
-                    dragDistance = data.distance
-                }  
-                
-                // dump(evt.type);
-                console.log("3", evt.type, dragDistance)
-
-              
-
-                if (evt.type == 'dir:left') {
-                    dragDirection = 'left'
-                    // setnDirection('left')
-                    // setTouchControls({
-                    //     ...touchControls,
-                    //     left: true,
-                    //     right: false
-                    // })
+                } else {
+                    const currentControls = useTouchControlsStore.getState().touchControls;
+                    setTouchControls({
+                        ...currentControls,
+                        left: false,
+                        right: false,
+                        joystickVector: { x: 0, y: 0 }
+                    })
                 }
 
-                if (evt.type == 'dir:right') {
-                    dragDirection = 'right'
-                    // setnDirection('right')
-                    // setTouchControls({
-                    //     ...touchControls,
-                    //     left: false,
-                    //     right: true
-                    // })
-                }
+            })
+            .on(' ' +
+                'dir:up plain:up dir:left plain:left dir:down ' +
+                'plain:down dir:right plain:right',
+                function (evt, data) {
 
-            }
-        )
-        .on('pressure', function (evt, data) {
-            // debug({
-            //   pressure: data
-            // });
-        });
+                    if (evt.type == 'move') {
+                        dragDistance = data.distance
+                    }
+
+                    // dump(evt.type);
+                    console.log("3", evt.type, dragDistance)
+
+
+
+                    if (evt.type == 'dir:left') {
+                        dragDirection = 'left'
+                        // setnDirection('left')
+                        // setTouchControls({
+                        //     ...touchControls,
+                        //     left: true,
+                        //     right: false
+                        // })
+                    }
+
+                    if (evt.type == 'dir:right') {
+                        dragDirection = 'right'
+                        // setnDirection('right')
+                        // setTouchControls({
+                        //     ...touchControls,
+                        //     left: false,
+                        //     right: true
+                        // })
+                    }
+
+                    if (evt.type == 'dir:up') {
+                        dragDirection = 'up'
+                        // setnDirection('up')
+                        // setTouchControls({
+                        //     ...touchControls,
+                        //     up: true,
+                        //     down: false
+                        // })
+                    }
+
+                    if (evt.type == 'dir:down') {
+                        dragDirection = 'down'
+                        // setnDirection('down')
+                        // setTouchControls({
+                        //     ...touchControls,
+                        //     up: false,
+                        //     down: true
+                        // })
+                    }
+
+                }
+            )
+            .on('pressure', function (evt, data) {
+                // debug({
+                //   pressure: data
+                // });
+            });
+
+        return manager;
     }
 
     useEffect(() => {
 
-        if (!nippleCreated) {
-            console.log("Load nipple")
-            startNipple()
+        console.log("Load nipple")
+        const manager = startNipple()
+
+        return () => {
+            if (manager) {
+                console.log("Destroy nipple")
+                manager.destroy()
+            }
         }
 
-    }, []);
+    }, [sceneKey]);
+
+    if (cameraMode == "Free") return null
 
     return (
-        <div className={`touch-controls-area ${!touchControlsEnabled && 'd-none'}`}>
+        <div
+            className={classNames(
+                "touch-controls-area",
+                { 
+                    // 'd-none': !touchControlsEnabled 
+                    'd-none': usersPlayer?.team === "Sniper"
+                }
+            )}
+        >
 
-            <div className='d-flex'>
+            <div className="w-100 h-100">
+                <div style={{
+                    position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                    // backgroundColor: 'black',
+                    zIndex: 1,
+                }} id="zone_joystick"></div>
+            </div>
+
+            <div className='d-flex d-none'>
 
                 <div>
                     {/* <ArticlesButton
@@ -191,12 +257,7 @@ function TouchControlsBase(props) {
                 >
                     Right
                 </ArticlesButton> */}
-                    <div style={{
-                        position: 'relative',
-                        width: '100px',
-                        height: '100px',
-                        backgroundColor: 'black'
-                    }} id="zone_joystick"></div>
+
                 </div>
 
                 <div className='ms-2 d-none d-lg-block'>
@@ -207,12 +268,8 @@ function TouchControlsBase(props) {
 
             </div>
 
-            <JumpButton />
+            <ActionButtons />
 
         </div>
     )
 }
-
-const TouchControls = memo(TouchControlsBase, arePropsEqual);
-
-export default TouchControls

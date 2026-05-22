@@ -7,6 +7,7 @@ export default function GameDetailsPanel() {
 
     const players = useGameStore(state => state.gameState?.players)
     const npc_players = useGameStore(state => state.gameState?.npc_players)
+    const socket = useSocketStore(state => state.socket)
 
     return (
         <div className="card game-details-panel">
@@ -34,6 +35,11 @@ export default function GameDetailsPanel() {
                                     className={`badge bg-black me-1`}
                                     style={{
                                         fontSize: "0.6rem"
+                                    }}
+                                    onClick={() => {
+                                        socket.emit(`game:${process.env.NEXT_PUBLIC_GAME_KEY}:change-team`, {
+                                            team: player.team === "Assassin" ? "Sniper" : "Assassin"
+                                        })
                                     }}
                                 >
                                     {player.team || "N/A"}

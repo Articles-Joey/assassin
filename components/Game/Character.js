@@ -10,7 +10,7 @@ import { ModelSuit } from "../Models/players/Suit";
 import { ModelSwat } from "../Models/players/Swat";
 import { ModelWorker } from "../Models/players/Worker";
 
-export default function Character({ type, scale }) {
+export default function Character({ type, scale, action }) {
 
     function getModelComponent(type) {
         switch (type) {
@@ -45,7 +45,7 @@ export default function Character({ type, scale }) {
 
     return (
         <group >
-            {ModelComponent ? <ModelComponent scale={scale} /> : null}
+            {ModelComponent ? <ModelComponent scale={scale} action={action} /> : null}
         </group>
     );
 }

@@ -24,6 +24,7 @@ const useTouchControlsStore = create()(
                 right: false,
                 up: false,
                 down: false,
+                joystickVector: { x: 0, y: 0 }
             },
             setTouchControls: (newValue) => {
                 set((prev) => ({

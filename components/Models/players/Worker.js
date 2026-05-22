@@ -4,7 +4,8 @@ Command: npx gltfjsx@6.5.0 models\Worker.gltf --output output\Worker.js --transf
 Files: models\Worker.gltf [2.97MB] > E:\Downloads\men\output\Worker-transformed.glb [756.93KB] (74%)
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
+import * as THREE from 'three'
 import { useGraph } from '@react-three/fiber'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import { SkeletonUtils } from 'three-stdlib'
@@ -15,6 +16,19 @@ export function ModelWorker(props) {
   const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene])
   const { nodes, materials } = useGraph(clone)
   const { actions } = useAnimations(animations, group)
+
+  useEffect(() => {
+    const action = actions[props.action];
+    if (action) {
+      action.reset().fadeIn(0.2).play();
+      if (props.action === 'Death') {
+        action.setLoop(THREE.LoopOnce, 1);
+        action.clampWhenFinished = true;
+      }
+      return () => action.fadeOut(0.2);
+    }
+  }, [props.action, actions]);
+
   return (
     <group ref={group} {...props} dispose={null}>
       <group name="Scene">

@@ -4,7 +4,8 @@ Command: npx gltfjsx@6.5.0 models\Casual_2.gltf --output output\Casual_2.js --tr
 Files: models\Casual_2.gltf [3.06MB] > E:\Downloads\men\output\Casual_2-transformed.glb [753.45KB] (75%)
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
+import * as THREE from 'three'
 import { useGraph } from '@react-three/fiber'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import { SkeletonUtils } from 'three-stdlib'
@@ -15,6 +16,19 @@ export function ModelCasual2(props) {
   const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene])
   const { nodes, materials } = useGraph(clone)
   const { actions } = useAnimations(animations, group)
+
+  useEffect(() => {
+    const action = actions[props.action];
+    if (action) {
+      action.reset().fadeIn(0.2).play();
+      if (props.action === 'Death') {
+        action.setLoop(THREE.LoopOnce, 1);
+        action.clampWhenFinished = true;
+      }
+      return () => action.fadeOut(0.2);
+    }
+  }, [props.action, actions]);
+
   return (
     <group ref={group} {...props} dispose={null}>
       <group name="Scene">

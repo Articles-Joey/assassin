@@ -11,6 +11,7 @@ import { GamepadKeyboard, PieMenu } from '@articles-media/articles-gamepad-helpe
 import RotatingMascot from '@/components/UI/RotatingMascot';
 import LandingBackgroundAnimation from '@/components/Game/LandingBackgroundAnimation';
 import ArticlesButton from '@/components/UI/Button';
+import AnimatedHero from '@/components/UI/AnimatedHero';
 
 export default function LobbyPage() {
 
@@ -28,22 +29,23 @@ export default function LobbyPage() {
                 // CardBodyOverride={<>
                 // </>}
                 heroOverride={<>
-                    <div className='hero'>
-                        <h1 className="SwordFont">(Assassin)</h1>
-                        <img src={"img/crosshair.png"}></img>
-                    </div>
+                    <AnimatedHero />
                 </>}
                 // disableHero                
                 backgroundImage={`${process.env.NEXT_PUBLIC_CDN}games/Assassin/assassin-thumbnail.webp`}
                 CardBodyPrependContent={<>
-                    <Link href={"/play?local_play=true"} className="w-100">
-                        <ArticlesButton
-                            className="w-100 mb-3"
-                        >
-                            <i className='fas fa-play me-2'></i>
-                            Local Play
-                        </ArticlesButton>
-                    </Link>
+                    <div className='mb-2 border-bottom pb-2'>
+                        <Link href={"/play?local_play=true"} className="w-100">
+                            <ArticlesButton
+                                className="w-100"
+                            >
+                                <i className='fas fa-gamepad-alt fa-lg me-2'></i>
+                                Local Play
+                                <span className='ms-2 badge bg-dark' style={{scale: '1.1'}}>Works offline!</span>
+                            </ArticlesButton>
+                        </Link>
+                        <div className='small text-center'>Play with 2 to 4 gamepads locally.</div>
+                    </div>
                 </>}
                 // singlePlayerConfig={{
 
@@ -56,6 +58,7 @@ export default function LobbyPage() {
                     // comingSoon: true,
                     defaultServers: 2,
                     // privateServerSupport: false,
+                    onlinePlayersTemplate: "2.0"
                 }}
                 gameScoreboardConfig={{
                     append_score_text: "m",

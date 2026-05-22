@@ -19,6 +19,8 @@ export default function LayoutClient({ children }) {
     const pathname = usePathname();
 
     const darkMode = useStore((state) => state.darkMode);
+    const graphicsQuality = useStore((state) => state.graphicsQuality);
+    const setGraphicsQuality = useStore((state) => state.setGraphicsQuality);
     const setGameState = useGameStore((state) => state.setGameState);
 
     useHotkeys('r', () => {
@@ -27,7 +29,7 @@ export default function LayoutClient({ children }) {
     }, [])
 
     useEffect(() => {
-        setGameState(null);
+        setGameState({});
     }, [pathname])
 
     return (
@@ -53,6 +55,18 @@ export default function LayoutClient({ children }) {
                                 darkMode: true,
                                 landingAnimation: true,
                                 children: <>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.25rem 0' }}>
+                                        <label style={{ minWidth: 120, fontWeight: 500 }}>Graphics Quality</label>
+                                        <select
+                                            value={graphicsQuality}
+                                            onChange={(e) => setGraphicsQuality(e.target.value)}
+                                            style={{ flex: 1, padding: '0.25rem 0.5rem', borderRadius: 4 }}
+                                        >
+                                            <option value="Low">Low</option>
+                                            <option value="Medium">Medium</option>
+                                            <option value="High">High</option>
+                                        </select>
+                                    </div>
                                 </>,
                             },
                             'Audio': {

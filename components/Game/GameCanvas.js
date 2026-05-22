@@ -28,11 +28,12 @@ function GameCanvas({
 }) {
 
     const debug = useStore((state) => state.debug)
+    const showStats = useStore((state) => state?.debugConfig?.showStats);
 
     return (
-        <Canvas camera={{ position: [0, 20, 20], fov: 50 }}>
+        <Canvas camera={{ position: [0, 30, 45], fov: 50 }}>
 
-            {process.env.NODE_ENV === 'development' && <>
+            {showStats && <>
                 <Stats className="stats-overlay" />
             </>}
 
@@ -53,7 +54,7 @@ function GameCanvas({
                     position={[
                         0,
                         (75 / 2),
-                        -25
+                        -30
                     ]}
                 // rotation={[degToRad(-90), 0, 0]}
                 />

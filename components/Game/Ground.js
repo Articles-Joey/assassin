@@ -11,6 +11,7 @@ import { degToRad } from "three/src/math/MathUtils";
 import { SpotLight } from "three";
 import { useGameStore } from "@/hooks/useGameStore";
 import { useSocketStore } from "@/hooks/useSocketStore";
+import useGameHelpers from "@/hooks/useGameHelpers";
 
 const game_name = 'Assassin'
 const game_key = 'assassin'
@@ -22,6 +23,11 @@ export default function Ground() {
     } = useSocketStore(state => ({
         socket: state.socket,
     }));
+
+    const {
+        handleKillPlayer,
+        handleSpotPlayer
+    } = useGameHelpers()
 
     const [ref, api] = useBox(() => ({
         mass: 0,
@@ -51,6 +57,8 @@ export default function Ground() {
                 console.log("Player under spotlight!", e.body.userData)
                 touching.current.add(e.body)
                 // setInPlayerReach(true)
+
+                handleSpotPlayer(e.body.userData.id)
             }
         },
         onCollideEnd: (e) => {

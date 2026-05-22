@@ -1,5 +1,6 @@
 "use client";
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useRef } from 'react';
 
 import { useSocketStore } from "@/hooks/useSocketStore";
 import { useStore } from '@/hooks/useStore';
@@ -15,6 +16,8 @@ export default function SocketLogicHandler(props) {
     const searchParams = useSearchParams()
     const params = Object.fromEntries(searchParams.entries());
     const { server } = params
+
+    const lastLogTime = useRef(0);
 
     if (!_hasHydrated) return null;
 
@@ -38,7 +41,11 @@ export default function SocketLogicHandler(props) {
             gameConfig={{
                 handleGameUpdates: true,
                 onGameUpdate: (data) => {
-                    console.log("[SocketLogicHandler] onGameUpdate", data)
+                    const now = Date.now();
+                    if (now - lastLogTime.current >= 1000) {
+                        console.log("[SocketLogicHandler] onGameUpdate (throttled)", data);
+                        lastLogTime.current = now;
+                    }
                 }
             }}
             server={server}

@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 
 import { useTexture } from "@react-three/drei"
+import { useFrame } from '@react-three/fiber'
 
 export default function LavaPlane(props) {
 
@@ -16,6 +17,10 @@ export default function LavaPlane(props) {
 
     texture.map.repeat.set(50, 50);
     texture.map.wrapS = texture.map.wrapT = THREE.RepeatWrapping;
+
+    useFrame((state, delta) => {
+        texture.map.offset.x += delta * 0.2
+    })
 
     return (
         <group {...props}>

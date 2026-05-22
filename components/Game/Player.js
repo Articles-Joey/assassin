@@ -6,14 +6,13 @@ import { Vector3 } from "three"
 import * as THREE from 'three';
 import { useKeyboard } from "@/hooks/useKeyboard"
 
-import { Model as SpacesuitModel } from "@/components/Models/Spacesuit";
-
 import { useControllerStore } from '@/hooks/useControllerStore';
-import { useControlsStore, useGameStore } from "@/hooks/useGameStore";
+import { useGameStore } from "@/hooks/useGameStore";
 
-// import ClownfishModel from "./PlayerModels/Clownfish"
-// import BoneFishModel from "./PlayerModels/BoneFish"
-import { useLocalStorageNew } from "@/hooks/useLocalStorageNew"
+import { useSearchParams } from "next/navigation"
+import { useSocketStore } from "@/hooks/useSocketStore"
+import useGameHelpers from "@/hooks/useGameHelpers"
+import useTouchControlsStore from "@/hooks/useTouchControlsStore"
 
 const JUMP_FORCE = 0;
 const SPEED = 6;
@@ -28,7 +27,18 @@ function myToFixed(i, digits) {
 
 function Player(props) {
 
+    const searchParams = useSearchParams()
+    const params = Object.fromEntries(searchParams.entries());
+    const { local_play, server } = params
+
     // const { setPlayerData, teleportPlayer, setTeleportPlayer } = props;
+
+    const socket = useSocketStore(state => state.socket)
+
+    const {
+        handleKillPlayer,
+        handleSpotPlayer
+    } = useGameHelpers()
 
     const {
         cameraMode, setCameraMode,
@@ -42,7 +52,7 @@ function Player(props) {
 
     const {
         touchControls, setTouchControls
-    } = useControlsStore()
+    } = useTouchControlsStore()
 
     const [attackCoolDown, setAttackCoolDown] = useState(false);
 
@@ -223,20 +233,32 @@ function Player(props) {
 
         const direction = new Vector3()
 
-        const frontVector = new Vector3(
-            0,
-            0,
-            (moveForward || touchControls.up ? -1 : 0) - (moveBackward || touchControls.down ? -1 : 0),
-        )
+        if (touchControls.joystickVector?.x || touchControls.joystickVector?.y) {
 
-        const sideVector = new Vector3(
-            (moveLeft || touchControls.left ? 1 : 0) - (moveRight || touchControls.right ? 1 : 0),
-            0,
-            0,
-        )
+            direction.set(
+                touchControls.joystickVector.x,
+                0,
+                -touchControls.joystickVector.y
+            )
+
+        } else {
+
+            const frontVector = new Vector3(
+                0,
+                0,
+                (moveForward ? -1 : 0) - (moveBackward ? -1 : 0),
+            )
+
+            const sideVector = new Vector3(
+                (moveLeft ? 1 : 0) - (moveRight ? 1 : 0),
+                0,
+                0,
+            )
+
+            direction.subVectors(frontVector, sideVector)
+        }
 
         direction
-            .subVectors(frontVector, sideVector)
             .normalize()
             .multiplyScalar(SPEED * (shift ? 2 : 1))
         // .applyEuler(camera.rotation)
@@ -253,53 +275,46 @@ function Player(props) {
         }
 
         if (
-            (jump || touchControls.jump) 
+            (jump || touchControls.jump)
             // && 
             // Math.abs(vel.current[1]) < 0.05 
-            && 
+            &&
             !attackCoolDown
         ) {
 
             const nearbyPlayers = Array.from(touching.current)
-            const nearbyPlayersIdArray = nearbyPlayers.map((obj) => {  
-                return obj.userData.number
+            const nearbyPlayersIdArray = nearbyPlayers.map((obj) => {
+                return obj.userData.id
             })
 
-            console.log("Jump understood", nearbyPlayersIdArray)
+            console.log("nearbyPlayersIdArray", nearbyPlayersIdArray)
 
-            const players = useGameStore.getState().players
+            // const players = useGameStore.getState().players
 
-            let newPlayers = players.map(player_obj => {
-                if (nearbyPlayersIdArray.includes(player_obj.number)) {
-                    return {
-                        ...player_obj,
-                        dead: new Date()
-                    }
-                } else {
-                    return player_obj
-                }
-            })
+            // let newPlayers = players.map(player_obj => {
 
-            console.log("newPlayers", newPlayers)
-            setPlayers(newPlayers)
+            //     if (nearbyPlayersIdArray.includes(player_obj.number)) {
+            //         return {
+            //             ...player_obj,
+            //             killedAt: new Date(),
+            //             dead: new Date()
+            //         }
+            //     } else {
+            //         return player_obj
+            //     }
+
+            // })
+
+            handleKillPlayer(nearbyPlayersIdArray)
+
             setAttackCoolDown(true)
 
-            // api.velocity.set(vel.current[0], JUMP_FORCE, vel.current[2])
-
-            // if (
-            //     touchControls.jump
-            //     // ||
-            //     // touchControls.left
-            //     // ||
-            //     // touchControls.right
-            // ) {
-            //     setTouchControls({
-            //         ...touchControls,
-            //         jump: false,
-            //         // left: false,
-            //         // right: false
-            //     })
-            // }
+            if (touchControls.jump) {
+                setTouchControls({
+                    ...touchControls,
+                    jump: false,
+                })
+            }
         }
 
     })

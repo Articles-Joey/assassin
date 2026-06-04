@@ -201,6 +201,10 @@ export default function TouchControls(props) {
 
     useEffect(() => {
 
+        if (!touchControlsEnabled) {
+            return;
+        }
+
         console.log("Load nipple")
         const manager = startNipple()
 
@@ -213,7 +217,11 @@ export default function TouchControls(props) {
 
     }, [sceneKey]);
 
-    if (cameraMode == "Free") return null
+    if (cameraMode == "Free" || !touchControlsEnabled) return null
+
+    // if (!touchControlsEnabled) {
+    //     return null;
+    // }
 
     return (
         <div

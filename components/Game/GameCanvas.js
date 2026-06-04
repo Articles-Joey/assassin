@@ -63,17 +63,17 @@ function GameCanvas({
                     args={[50, 50]}
                     position={[
                         0,
-                        0,
+                        -0.5,
                         0
                     ]}
-                    rotation={[degToRad(-90), 0, 0]}
+                    rotation={[degToRad(0), 0, 0]}
                 />
     
                 <LavaPlane
                     args={[150, 150]}
                     position={[
                         0,
-                        -0.2,
+                        -0.5,
                         0
                     ]}
                     rotation={[degToRad(-90), 0, 0]}
@@ -81,7 +81,7 @@ function GameCanvas({
             </Suspense>
 
             <Suspense>
-                <LavaBurst />
+                <LavaBurst innerSize={20} outerSize={30} />
             </Suspense>
 
             <Suspense>

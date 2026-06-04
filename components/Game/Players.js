@@ -78,10 +78,13 @@ export function Npc({ player_data }) {
     const [lastSpotted, setLastSpotted] = useState(false);
 
     const [targetPosition, setTargetPosition] = useState([0, 0, 0]); // Initial target position
+
     const npcRef = useRef();
 
     const [currentAnimation, setCurrentAnimation] = useState('Idle');
     const posHistory = useRef([]);
+    const movingFrames = useRef(0);
+    const idleFrames = useRef(0);
 
     const deadRef = useRef(player_data?.dead)
     useEffect(() => {
@@ -104,7 +107,11 @@ export function Npc({ player_data }) {
             0,
             player_data?.z || 0,
         ],
-        collisionFilterGroup: 2,
+        // Put NPCs in their own collision group (4) so they don't collide
+        // with players (group 1). They should still collide with the ground
+        // (group 2), so set mask accordingly.
+        collisionFilterGroup: 4,
+        collisionFilterMask: 2,
         userData: {
             player: true,
             id: player_data?.id,
@@ -138,23 +145,45 @@ export function Npc({ player_data }) {
                 npcRef.current.rotation.y = player_data.ry
             }
 
-            // Animation logic based on movement in last 3 frames
+            // Animation logic with debounce based on movement over last frames
             const currentPos = { x: player_data.x || 0, z: player_data.z || 0 };
             posHistory.current.push(currentPos);
-            if (posHistory.current.length > 3) posHistory.current.shift();
+            if (posHistory.current.length > 5) posHistory.current.shift();
 
-            let nextAnimation = 'Idle';
+            let nextAnimation = currentAnimation;
             if (player_data.seenDead) {
                 nextAnimation = 'Death';
-            } else if (posHistory.current.length === 3) {
+            } else if (posHistory.current.length >= 2) {
                 const first = posHistory.current[0];
-                const last = posHistory.current[2];
-                const distance = Math.sqrt(
-                    Math.pow(last.x - first.x, 2) + Math.pow(last.z - first.z, 2)
-                );
-                // If moved more than a small threshold, set to Walk
-                if (distance > 0.01) {
+                const last = posHistory.current[posHistory.current.length - 1];
+                const dx = last.x - first.x;
+                const dz = last.z - first.z;
+                const distance = Math.sqrt(dx * dx + dz * dz);
+
+                const MOVE_THRESHOLD = 0.02;
+
+                if (distance > MOVE_THRESHOLD) {
+                    movingFrames.current++;
+                    idleFrames.current = 0;
+                } else {
+                    idleFrames.current++;
+                    movingFrames.current = 0;
+                }
+
+                if (movingFrames.current >= 2) {
                     nextAnimation = 'Walk';
+                    movingFrames.current = 0;
+                }
+
+                if (idleFrames.current >= 6) {
+                    nextAnimation = 'Idle';
+                    idleFrames.current = 0;
+                }
+
+                // Make NPC face direction of travel when moving
+                if (distance > MOVE_THRESHOLD && npcRef.current) {
+                    const angle = Math.atan2(dx, dz);
+                    npcRef.current.rotation.y = angle;
                 }
             }
 
@@ -220,7 +249,9 @@ export function Npc({ player_data }) {
 
                 </group>
             </group>
-            {targetPosition &&
+
+            {/* TODO */}
+            {/* {targetPosition &&
                 <mesh position={targetPosition}>
                     <cylinderGeometry args={[1, 1, 10, 8]} />
                     <meshStandardMaterial
@@ -229,7 +260,7 @@ export function Npc({ player_data }) {
                         opacity={0.75}
                     />
                 </mesh>
-            }
+            } */}
         </>
     );
 }

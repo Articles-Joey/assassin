@@ -13,6 +13,7 @@ import { useSearchParams } from "next/navigation"
 import { useSocketStore } from "@/hooks/useSocketStore"
 import useGameHelpers from "@/hooks/useGameHelpers"
 import useTouchControlsStore from "@/hooks/useTouchControlsStore"
+import Character from "./Character"
 
 const JUMP_FORCE = 0;
 const SPEED = 6;
@@ -76,9 +77,9 @@ function Player(props) {
         if (controllerState.axes && Math.abs(controllerState?.axes[0]) > 0.3) {
 
             if (controllerState?.axes[0] > 0) {
-                api.position.set([-1, 5, 0]);
+                characterRefApi.position.set([-1, 5, 0]);
             } else {
-                api.position.set([1, 5, 0]);
+                characterRefApi.position.set([1, 5, 0]);
             }
 
         }
@@ -90,7 +91,7 @@ function Player(props) {
         if (teleport) {
 
             console.log("Teleport has been called!", teleport)
-            api.position.set(teleport[0], teleport[1], teleport[2]);
+            characterRefApi.position.set(teleport[0], teleport[1], teleport[2]);
             setTeleport(false)
 
         }
@@ -101,7 +102,7 @@ function Player(props) {
 
     const { camera } = useThree()
 
-    const [ref, api] = useSphere(() => ({
+    const [characterRef, characterRefApi] = useSphere(() => ({
         mass: 1,
         args: [1],
         position: [0, 2, 0],
@@ -120,8 +121,8 @@ function Player(props) {
 
     const vel = useRef([0, 0, 0])
     useEffect(() => {
-        api.velocity.subscribe((v) => vel.current = v)
-    }, [api.velocity])
+        characterRefApi.velocity.subscribe((v) => vel.current = v)
+    }, [characterRefApi.velocity])
 
     const pos = useRef([0, 0, 0])
 
@@ -163,26 +164,25 @@ function Player(props) {
     }))
 
     const playerModelRef = useRef()
+    const [currentAction, setCurrentAction] = useState('Idle')
+    const movingFrames = useRef(0)
+    const idleFrames = useRef(0)
     useEffect(() => {
-
-        api.position.subscribe((p) => {
-
+        // Subscribe once to the physics position and copy it to `pos`
+        // and the reach trigger. Also update the visual model position
+        // when it's mounted so the visual model doesn't inherit physics
+        // rotation.
+        const unsub = characterRefApi.position.subscribe((p) => {
             pos.current = p
-
             playerReachApi.position.set(...p)
-
+            if (playerModelRef.current) playerModelRef.current.position.set(...p)
         })
 
-        if (playerModelRef.current) {
-            // Get the current position of the sphere from the physics API
-            api.position.subscribe((position) => {
-
-                playerModelRef?.current?.position.set(...position);
-
-            });
+        return () => {
+            if (typeof unsub === 'function') unsub()
         }
 
-    }, [api.position])
+    }, [characterRefApi.position, playerReachApi.position])
 
     useEffect(() => {
         console.log("Shift", isShifting)
@@ -221,6 +221,18 @@ function Player(props) {
         if (JSON.stringify(lastLocation) !== JSON.stringify(newLocation)) {
             // console.log(newLocation, lastLocation)
             setPlayerLocation(newLocation)
+
+            if (socket) {
+                socket.emit(`game:${process.env.NEXT_PUBLIC_GAME_KEY}:move`, {
+                    server: server,
+                    x: newLocation.x,
+                    // y: newLocation.y,
+                    z: newLocation.z,
+                    action: currentAction,
+                    // rotation: [0, degToRad(lastMove), 0]
+                })
+            }
+            
             lastLocation = newLocation
         }
         // else {
@@ -263,15 +275,47 @@ function Player(props) {
             .multiplyScalar(SPEED * (shift ? 2 : 1))
         // .applyEuler(camera.rotation)
 
-        api.velocity.set(direction.x, 0, direction.z)
+        characterRefApi.velocity.set(direction.x, 0, direction.z)
 
         const BOUNDS = 23; // Half of 23x23
         if (Math.abs(pos.current[0]) > BOUNDS || Math.abs(pos.current[2]) > BOUNDS) {
-            api.position.set(
+            characterRefApi.position.set(
                 Math.max(-BOUNDS, Math.min(BOUNDS, pos.current[0])),
                 pos.current[1],
                 Math.max(-BOUNDS, Math.min(BOUNDS, pos.current[2]))
             );
+        }
+
+        // Ensure the visual model faces movement direction and stays upright.
+        if (playerModelRef.current) {
+            // Face movement direction when moving (use small threshold to avoid jitter)
+            if (direction.lengthSq() > 0.0001) {
+                const angle = Math.atan2(direction.x, direction.z)
+                playerModelRef.current.rotation.y = angle
+            }
+            playerModelRef.current.rotation.x = 0
+            playerModelRef.current.rotation.z = 0
+            playerModelRef.current.position.y = 0
+        }
+
+        // Debounce player animation switching to avoid rapid flashing
+        const MOVE_THRESHOLD = 0.0005
+        if (direction.lengthSq() > MOVE_THRESHOLD) {
+            movingFrames.current++
+            idleFrames.current = 0
+        } else {
+            idleFrames.current++
+            movingFrames.current = 0
+        }
+
+        if (movingFrames.current >= 2 && currentAction !== 'Walk') {
+            setCurrentAction('Walk')
+            movingFrames.current = 0
+        }
+
+        if (idleFrames.current >= 6 && currentAction !== 'Idle') {
+            setCurrentAction('Idle')
+            idleFrames.current = 0
         }
 
         if (
@@ -322,15 +366,15 @@ function Player(props) {
     return (
         <group>
 
-            <group
+            {/* <group
                 ref={playerModelRef}
             >
-                {/* <SpacesuitModel
+                <SpacesuitModel
                     scale={2}
                     position={[0, -1, 0]}
                     action="Walk"
-                /> */}
-            </group>
+                />
+            </group> */}
 
             <mesh ref={playerReachRef}>
                 <cylinderGeometry args={[2, 2, 1, 8]} /> {/* Cylinder dimensions */}
@@ -342,23 +386,22 @@ function Player(props) {
             </mesh>
 
             <mesh
-                ref={ref}
-                // {...props}
-                // position={position}
+                ref={characterRef}
                 material={material}
             >
-                <sphereGeometry args={[1, 32, 32]} />
-
-                {/* {character.model == 'Clownfish' && <ClownfishModel rotation={[0, Math.PI / 1, 0]} />}
-                {character.model == 'Bone Fish' && <BoneFishModel rotation={[0, -Math.PI / 2, 0]} />} */}
-
-                {/* <Text
-                    color="black" position={[0, -0.7, 0]} scale={0.3} anchorX="center" anchorY="middle"
-                >
-                    Player ({character.model})
-                </Text> */}
-
+                {/* Invisible/physics-only sphere; visual model is separate */}
+                {/* <sphereGeometry args={[1, 32, 32]} />
+                <meshStandardMaterial visible={false} /> */}
             </mesh>
+
+            <group 
+                ref={playerModelRef}
+            >
+                <Character 
+                    scale={2}
+                    action={currentAction}
+                />
+            </group>
 
         </group>
     )

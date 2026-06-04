@@ -4,31 +4,31 @@ import * as THREE from 'three';
 import { useStore } from '@/hooks/useStore';
 
 const BURST_COUNT = 5;
-const MAP_SIZE = 60;
 
-function getRandomPosition() {
+function getRandomPosition(innerSize = 40, outerSize = 60) {
+    const outerHalf = outerSize / 2;
+    const innerHalf = innerSize / 2;
     let x, z;
-    const halfSize = MAP_SIZE / 2;
-    const excludeCenter = 10;
+    // Pick uniformly inside the outer square, but reject points inside the inner square
     do {
-        x = Math.random() * MAP_SIZE - halfSize;
-        z = Math.random() * MAP_SIZE - halfSize;
-    } while (Math.abs(x) < excludeCenter && Math.abs(z) < excludeCenter);
+        x = Math.random() * outerSize - outerHalf;
+        z = Math.random() * outerSize - outerHalf;
+    } while (Math.abs(x) <= innerHalf && Math.abs(z) <= innerHalf);
     return new THREE.Vector3(x, 0, z);
 }
 
 // ─── LOW QUALITY: stacked cone column ────────────────────────────────────────
 
-function LowBurst({ color }) {
+function LowBurst({ color, innerSize, outerSize }) {
     const meshRef = useRef();
     const [bursting, setBursting] = useState(false);
-    const [position, setPosition] = useState(getRandomPosition);
+    const [position, setPosition] = useState(() => getRandomPosition(innerSize, outerSize));
 
     useEffect(() => {
         let timer;
         const schedule = () => {
             timer = setTimeout(() => {
-                setPosition(getRandomPosition());
+                setPosition(getRandomPosition(innerSize, outerSize));
                 setBursting(true);
                 timer = setTimeout(() => {
                     setBursting(false);
@@ -74,9 +74,9 @@ function LowBurst({ color }) {
 const _particleGeo = new THREE.SphereGeometry(0.14, 5, 5);
 const _dummy = new THREE.Object3D();
 
-function ParticleBurst({ color, particleCount }) {
+function ParticleBurst({ color, particleCount, innerSize, outerSize }) {
     const instancedRef = useRef();
-    const basePosition = useRef(getRandomPosition());
+    const basePosition = useRef(getRandomPosition(innerSize, outerSize));
 
     const particles = useMemo(() =>
         [...Array(particleCount)].map(() => ({
@@ -89,7 +89,7 @@ function ParticleBurst({ color, particleCount }) {
     [particleCount]);
 
     const triggerBurst = () => {
-        basePosition.current = getRandomPosition();
+        basePosition.current = getRandomPosition(innerSize, outerSize);
         particles.forEach((p) => {
             p.active = true;
             p.life = 0;

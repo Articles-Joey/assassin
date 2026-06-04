@@ -1,7 +1,7 @@
 import { useSearchParams } from "next/navigation";
 import { useGameStore } from "./useGameStore";
 import { useSocketStore } from "./useSocketStore";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function useGameHelpers() {
 
@@ -51,7 +51,7 @@ export default function useGameHelpers() {
 
     }
 
-    const [usersPlayer, setUsersPlayer]= useState(null)
+    const [usersPlayer, setUsersPlayer] = useState(null)
 
     useEffect(() => {
 
@@ -67,10 +67,32 @@ export default function useGameHelpers() {
 
     }, [socket.id, players])
 
+    const usersBulletCount = useMemo(() => {
+
+        if (server) {
+            const gameState = useGameStore.getState().gameState
+            const player = [...(gameState.players || []), ...(gameState.npc_players || [])].find(p => p.id === socket.id)
+            return player?.bullets || 0
+        }
+
+    }, [players])
+
+    function removeBullet() {
+
+        if (server) {
+            socket.emit(`game:${process.env.NEXT_PUBLIC_GAME_KEY}:remove_bullet`, {
+                server,
+            })
+        }
+
+    }
+
     return {
         handleKillPlayer,
         handleSpotPlayer,
         usersPlayer,
+        usersBulletCount,
+        removeBullet,
         setUsersPlayer
     }
 

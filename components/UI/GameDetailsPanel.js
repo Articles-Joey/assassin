@@ -2,12 +2,15 @@ import { useGameStore } from "@/hooks/useGameStore"
 import ArticlesButton from "./Button"
 import { useSearchParams } from "next/navigation"
 import { useSocketStore } from "@/hooks/useSocketStore"
+import { useStore } from "@/hooks/useStore"
 
 export default function GameDetailsPanel() {
 
     const players = useGameStore(state => state.gameState?.players)
     const npc_players = useGameStore(state => state.gameState?.npc_players)
     const socket = useSocketStore(state => state.socket)
+
+    const debug = useStore((state) => state.debug)
 
     return (
         <div className="card game-details-panel">
@@ -23,13 +26,13 @@ export default function GameDetailsPanel() {
                 <div className="border mb-3">
                     {players?.length > 0 && players.map((player, index) => (
                         <div key={index} className="player-entry border p-2">
-    
+
                             {/* <div className="player-color" style={{ backgroundColor: player.color }}></div> */}
-    
+
                             <div className="" style={{ fontSize: "0.6rem" }}>
                                 ID: {player.id}
                             </div>
-    
+
                             <div className="player-name d-flex align-items-center">
                                 <span
                                     className={`badge bg-black me-1`}
@@ -55,77 +58,74 @@ export default function GameDetailsPanel() {
                                 <span>{player.nickname || "?"} </span>
                                 <span>- {player.score || 0}</span>
                             </div>
-    
+
                             {/* <div className="player-name">Ready: {player.ready ? "Yes" : "No"}</div> */}
-    
-                            <div className="d-flex justify-content-between">
-    
+
+                            {debug && <div className="d-flex justify-content-between">
+
                                 <div>X: {player?.x?.toFixed(2) || 0} | Z: {player?.z?.toFixed(2) || 0}</div>
-    
-                                <div className="d-flex">
-                                    <div className="me-2">
-                                        <i className="fad fa-rocket"></i>
-                                        {player.hitPower}
-                                    </div>
-                                    <div>
-                                        <i className="fad fa-undo"></i>
-                                        {player.hitRotation}
-                                    </div>
-                                </div>
-    
-                            </div>
-    
+
+                            </div>}
+
                         </div>
                     ))}
                 </div>
 
-                <div>NPC Players</div>
-
-                <div className="border">
-                    {npc_players?.length > 0 && npc_players.map((player, index) => (
-                        <div key={index} className="player-entry border p-2">
+                {debug && <>
+                    <div>NPC Players</div>
     
-                            {/* <div className="player-color" style={{ backgroundColor: player.color }}></div> */}
+                    <div
+                        className="border"
+                        style={{
+                            maxHeight: "250px",
+                            overflowY: "auto"
+                        }}
+                    >
+                        {npc_players?.length > 0 && npc_players.map((player, index) => (
+                            <div key={index} className="player-entry border p-2">
     
-                            <div className="" style={{ fontSize: "0.6rem" }}>
-                                ID: {player.id}
-                            </div>
+                                {/* <div className="player-color" style={{ backgroundColor: player.color }}></div> */}
     
-                            <div className="player-name d-flex align-items-center">
-                                <span
-                                    className={`badge bg-black me-1`}
-                                    style={{
-                                        fontSize: "0.6rem"
-                                    }}
-                                >
-                                    {player.character_type || "N/A"}
-                                </span>
-                                <span>{player.nickname || "?"} </span>
-                                <span>- {player.score || 0}</span>
-                            </div>
+                                <div className="" style={{ fontSize: "0.6rem" }}>
+                                    ID: {player.id}
+                                </div>
     
-                            {/* <div className="player-name">Ready: {player.ready ? "Yes" : "No"}</div> */}
+                                <div className="player-name d-flex align-items-center">
+                                    <span
+                                        className={`badge bg-black me-1`}
+                                        style={{
+                                            fontSize: "0.6rem"
+                                        }}
+                                    >
+                                        {player.character_type || "N/A"}
+                                    </span>
+                                    <span>{player.nickname || "?"} </span>
+                                    <span>- {player.score || 0}</span>
+                                </div>
     
-                            <div className="d-flex justify-content-between">
+                                {/* <div className="player-name">Ready: {player.ready ? "Yes" : "No"}</div> */}
     
-                                <div>X: {player?.x?.toFixed(2) || 0} | Z: {player?.z?.toFixed(2) || 0}</div>
+                                <div className="d-flex justify-content-between">
     
-                                <div className="d-flex">
-                                    <div className="me-2">
-                                        <i className="fad fa-rocket"></i>
-                                        {player.hitPower}
+                                    <div>X: {player?.x?.toFixed(2) || 0} | Z: {player?.z?.toFixed(2) || 0}</div>
+    
+                                    <div className="d-flex">
+                                        <div className="me-2">
+                                            <i className="fad fa-rocket"></i>
+                                            {player.hitPower}
+                                        </div>
+                                        <div>
+                                            <i className="fad fa-undo"></i>
+                                            {player.hitRotation}
+                                        </div>
                                     </div>
-                                    <div>
-                                        <i className="fad fa-undo"></i>
-                                        {player.hitRotation}
-                                    </div>
+    
                                 </div>
     
                             </div>
-    
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                </>}
 
             </div>
 

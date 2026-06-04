@@ -44,7 +44,7 @@ export default function Character({ type, scale, action }) {
     const ModelComponent = getModelComponent(type);
 
     return (
-        <group >
+        <group>
             {ModelComponent ? <ModelComponent scale={scale} action={action} /> : null}
         </group>
     );

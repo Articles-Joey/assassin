@@ -9,24 +9,21 @@ export default function WoodFloor(props) {
 
     const texture = useTexture({
         map: `${base_link}rock.webp`,
-        // displacementMap: `${base_link}GroundSand005_DISP_1K.jpg`,
-        // normalMap: `${base_link}GroundSand005_NRM_1K.jpg`,
-        // roughnessMap: `${base_link}GroundSand005_BUMP_1K.jpg`,
-        // aoMap: `${base_link}GroundSand005_AO_1K.jpg`,
     })
 
     texture.map.repeat.set(20, 20);
     texture.map.wrapS = texture.map.wrapT = THREE.RepeatWrapping;
 
-    // useFrame((state, delta) => {
-    //     texture.map.offset.x += delta * 0.2
-    // })
-
     return (
         <group {...props}>
             <mesh>
-                <planeGeometry {...props} />
-                <meshStandardMaterial {...texture} />
+                <boxGeometry args={[40, 1, 40]} />
+                <meshStandardMaterial attach="material-0" color="#444" />
+                <meshStandardMaterial attach="material-1" color="#444" />
+                <meshStandardMaterial attach="material-2" {...texture} />
+                <meshStandardMaterial attach="material-3" color="#444" />
+                <meshStandardMaterial attach="material-4" color="#444" />
+                <meshStandardMaterial attach="material-5" color="#444" />
             </mesh>
         </group>
     )

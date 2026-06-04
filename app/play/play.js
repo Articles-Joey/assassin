@@ -11,6 +11,7 @@ import classNames from 'classnames';
 
 import GameMenu from '@articles-media/articles-dev-box/GameMenu';
 import TouchControls from '@/components/UI/TouchControls';
+import LobbyOverlay from '@/components/UI/LobbyOverlay';
 const GameCanvas = dynamic(() => import('@/components/Game/GameCanvas'), {
     ssr: false,
 });
@@ -50,6 +51,8 @@ export default function GamePage() {
             <div className='canvas-wrap'>
 
                 <TouchControls />
+
+                <LobbyOverlay />
 
                 <GameCanvas
                     key={sceneKey}

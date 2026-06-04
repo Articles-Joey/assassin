@@ -26,7 +26,9 @@ export default function Ground() {
 
     const {
         handleKillPlayer,
-        handleSpotPlayer
+        handleSpotPlayer,
+        usersBulletCount,
+        removeBullet,
     } = useGameHelpers()
 
     const [ref, api] = useBox(() => ({
@@ -35,7 +37,8 @@ export default function Ground() {
         args: [100, 0.5, 100],
         position: [0, 0, 0],
         collisionFilterGroup: 2, // Rocks are in group 2
-        collisionFilterMask: 1,  // Rocks collide with players
+        // Rocks should collide with players (group 1) and NPCs (group 4)
+        collisionFilterMask: 1 | 4,
     }))
 
     const visualSpotlightRef = useRef()
@@ -77,10 +80,12 @@ export default function Ground() {
 
 
     const touching = useRef(new Set())
+
     // const [bullets, setBullets] = useState(3);
-    const bullets = useGameStore((state) => state.bullets)
-    const setBullets = useGameStore((state) => state.setBullets)
-    const removeBullet = useGameStore((state) => state.removeBullet)
+    // const bullets = useGameStore((state) => state.gameState)
+    // const setBullets = useGameStore((state) => state.setBullets)
+    
+    // const removeBullet = useGameStore((state) => state.removeBullet)
     const setPlayers = useGameStore((state) => state.setPlayers)
     // const serverGameState = useGameStore((state) => state.serverGameState)
     // const setServerGameState = useGameStore((state) => state.setServerGameState)
@@ -189,9 +194,9 @@ export default function Ground() {
 
     const handleOnClick = () => {
         console.log("touching", touching)
-        console.log("bullets was", bullets)
+        console.log("usersBulletCount was", usersBulletCount)
 
-        if (bullets >= 1) {
+        if (usersBulletCount >= 1) {
 
             removeBullet()
 
@@ -291,7 +296,7 @@ export default function Ground() {
                         color="red"
                         scale={2}
                     >
-                        {bullets}
+                        {usersBulletCount}
                     </Text>
 
                 </mesh>

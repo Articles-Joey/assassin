@@ -7,7 +7,10 @@ import { NearestFilter, RepeatWrapping, TextureLoader, Vector3 } from "three";
 import { Debug, Physics, useBox, useCylinder, useSphere } from "@react-three/cannon";
 import { Model as SpacesuitModel } from "./Spacesuit";
 import { useGameStore } from "@/hooks/useGameStore";
+
+// import Character from '@articles-media/articles-amcot-character/QuaterniusModular';
 import Character from "./Character";
+
 import { Billboard, Text } from "@react-three/drei";
 
 export default function Npcs() {

@@ -1,5 +1,7 @@
 "use client"
 import { useEffect, useRef, useState } from "react";
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 
 export default function AnimatedHero() {
 
@@ -14,7 +16,7 @@ export default function AnimatedHero() {
             const parentWidth = heroRef.current.offsetWidth;
             const parentHeight = heroRef.current.offsetHeight;
 
-            // Assuming crosshair is roughly 50px as per scss
+            // Match the crosshair's rendered width and height.
             const imgSize = 50;
 
             setPos({
@@ -31,11 +33,18 @@ export default function AnimatedHero() {
     }, []);
 
     return (
-        <div className='hero' ref={heroRef}>
-            <h1 className="SwordFont">(Assassin)</h1>
-            <img
+        <Box className='hero' ref={heroRef} sx={{ position: 'relative', mb: '1rem', transform: 'scale(1.75)' }}>
+            <Typography component="h1" sx={{
+                fontFamily: '"Sword", cursive, sans-serif', fontSize: '4rem',
+                textAlign: 'center', color: '#000', textShadow: '-2px 0 2px #fff',
+                WebkitTextStroke: '0.7px black', fontWeight: 500, lineHeight: 1.2, mb: '0.5rem',
+            }}>(Assassin)</Typography>
+            <Box component="img"
                 src={"img/crosshair.png"}
-                style={{
+                alt=""
+                sx={{
+                    width: 50,
+                    height: 50,
                     position: 'absolute',
                     top: 0,
                     left: 0,
@@ -43,7 +52,7 @@ export default function AnimatedHero() {
                     transition: "transform 2s ease-in-out",
                     animation: 'none'
                 }}
-            ></img>
-        </div>
+            />
+        </Box>
     )
 }

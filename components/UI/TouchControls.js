@@ -1,28 +1,31 @@
-import { memo, useEffect, useState } from "react";
+"use client";
+import { useEffect, useState } from "react";
+import Box from '@mui/material/Box';
 
 import ArticlesButton from "@/components/UI/Button"
 // import { useControlsStore, useGameStore } from "@/hooks/useGameStore"
 import useTouchControlsStore from "@/hooks/useTouchControlsStore";
 import { useStore } from "@/hooks/useStore";
 import { useGameStore } from "@/hooks/useGameStore";
-import classNames from "classnames";
 import useGameHelpers from "@/hooks/useGameHelpers";
-import u from "@articles-media/articles-gamepad-helper/GamepadKeyboard";
-
-const arePropsEqual = (prevProps, nextProps) => {
-    // Compare all props for equality
-    return JSON.stringify(prevProps) === JSON.stringify(nextProps);
-};
 
 function ActionButtons() {
 
     const setTouchControls = useTouchControlsStore(state => state.setTouchControls);
 
     return (
-        <div className="action-buttons g-3">
+        <Box className="action-buttons" sx={{
+            position: 'fixed', right: '1rem', bottom: 50, display: 'flex',
+            flexDirection: 'column', gap: '1rem', zIndex: 2,
+        }}>
 
             <ArticlesButton
-                className="button jump-button"
+                sx={{
+                    width: 100, height: 100, borderRadius: '50%', opacity: 0.75,
+                    display: 'flex', justifyContent: 'center', alignItems: 'center',
+                    fontSize: '1.5rem', fontWeight: 'bold', transitionDuration: '200ms',
+                    '&:hover': { opacity: 1 },
+                }}
                 onClick={() => {
                     const touchControls = useTouchControlsStore.getState().touchControls;
                     console.log("Jump!")
@@ -35,7 +38,7 @@ function ActionButtons() {
                 Attack
             </ArticlesButton>
 
-        </div>
+        </Box>
     )
 }
 
@@ -224,29 +227,28 @@ export default function TouchControls(props) {
     // }
 
     return (
-        <div
-            className={classNames(
-                "touch-controls-area",
-                { 
-                    // 'd-none': !touchControlsEnabled 
-                    'd-none': usersPlayer?.team === "Sniper"
-                }
-            )}
+        <Box
+            className="touch-controls-area"
+            sx={{
+                position: 'absolute', right: 0, width: '100%', height: '100%', zIndex: 1,
+                display: usersPlayer?.team === 'Sniper' ? 'none' : 'flex',
+                justifyContent: 'space-between', alignItems: 'center',
+            }}
         >
 
-            <div className="w-100 h-100">
-                <div style={{
+            <Box sx={{ width: '100%', height: '100%' }}>
+                <Box sx={{
                     position: 'absolute',
                     width: '100%',
                     height: '100%',
                     // backgroundColor: 'black',
                     zIndex: 1,
-                }} id="zone_joystick"></div>
-            </div>
+                }} id="zone_joystick" />
+            </Box>
 
-            <div className='d-flex d-none'>
+            <Box sx={{ display: 'none' }}>
 
-                <div>
+                <Box>
                     {/* <ArticlesButton
                     onClick={() => {
                         setTouchControls({
@@ -266,18 +268,18 @@ export default function TouchControls(props) {
                     Right
                 </ArticlesButton> */}
 
-                </div>
+                </Box>
 
-                <div className='ms-2 d-none d-lg-block'>
-                    <div>Active: {nStart ? 'True' : 'False'}</div>
-                    <div>Direction: {nDirection ? nDirection : 'None'}</div>
-                    <div>Touch: {JSON.stringify(touchControls)}</div>
-                </div>
+                <Box sx={{ ml: '0.5rem', display: 'none', '@media (min-width: 992px)': { display: 'block' } }}>
+                    <Box>Active: {nStart ? 'True' : 'False'}</Box>
+                    <Box>Direction: {nDirection ? nDirection : 'None'}</Box>
+                    <Box>Touch: {JSON.stringify(touchControls)}</Box>
+                </Box>
 
-            </div>
+            </Box>
 
             <ActionButtons />
 
-        </div>
+        </Box>
     )
 }

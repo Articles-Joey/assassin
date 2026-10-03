@@ -10,23 +10,17 @@ import { useAudioStore } from "@/hooks/useAudioStore";
 import useTouchControlsStore from "@/hooks/useTouchControlsStore";
 import { useSocketStore } from "@/hooks/useSocketStore";
 import { Suspense, useEffect } from 'react';
-import ArticlesButton from '@/components/UI/Button';
 import { useGameStore } from '@/hooks/useGameStore';
 import { usePathname } from 'next/navigation';
+import Box from '@mui/material/Box';
+import HotkeyHandler from '@articles-media/articles-dev-box/HotkeyHandler';
 
-export default function LayoutClient({ children }) {
+export default function LayoutClient() {
 
     const pathname = usePathname();
 
     const darkMode = useStore((state) => state.darkMode);
-    const graphicsQuality = useStore((state) => state.graphicsQuality);
-    const setGraphicsQuality = useStore((state) => state.setGraphicsQuality);
     const setGameState = useGameStore((state) => state.setGameState);
-
-    useHotkeys('r', () => {
-        console.log("Reloading Scene")
-        useStore.getState().reloadScene();
-    }, [])
 
     useEffect(() => {
         setGameState({});
@@ -42,6 +36,7 @@ export default function LayoutClient({ children }) {
                 useStore={useStore}
             />
             <Suspense>
+                <HotkeyHandler useStore={useStore} useHotkeys={useHotkeys} />
                 <GlobalClientModals
                     useStore={useStore}
                     useAudioStore={useAudioStore}
@@ -95,12 +90,12 @@ export default function LayoutClient({ children }) {
                     infoModalConfig={{
                         previewImage: darkMode ? "img/preview.webp" : "img/preview.webp",
                         appendContent: <>
-                            <div className="small text-muted mb-2">
+                            <Box sx={{ fontSize: '0.875em', color: 'text.secondary', mb: '0.5rem' }}>
                                 View video of game that inspired this game below.
-                            </div>
+                            </Box>
 
-                            <div>
-                                <div className="ratio ratio-16x9">
+                            <Box>
+                                <Box sx={{ position: 'relative', width: '100%', aspectRatio: '16 / 9', '& iframe': { position: 'absolute', inset: 0, width: '100%', height: '100%', border: 0 } }}>
                                     <iframe
                                         width="100%"
                                         height="100%"
@@ -111,8 +106,8 @@ export default function LayoutClient({ children }) {
                                         referrerPolicy="strict-origin-when-cross-origin"
                                         allowFullScreen
                                     ></iframe>
-                                </div>
-                            </div>
+                                </Box>
+                            </Box>
                         </>
                     }}
                 />

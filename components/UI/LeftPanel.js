@@ -1,166 +1,71 @@
-import Link from "next/link";
+"use client";
 
-import { Dropdown, DropdownButton } from "react-bootstrap";
-
-// import ROUTES from '@/components/constants/routes';
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import LoginIcon from "@mui/icons-material/Login";
 import { useGameStore } from "@/hooks/useGameStore";
 import ArticlesButton from "@/components/UI/Button";
-
-// import ControllerPreview from "@/components/ControllerPreview";
 import { useSocketStore } from "@/hooks/useSocketStore";
 import { useStore } from "@/hooks/useStore";
-
-import GameMenuPrimaryButtonGroup from '@articles-media/articles-dev-box/GameMenuPrimaryButtonGroup';
+import GameMenuPrimaryButtonGroup from "@articles-media/articles-dev-box/GameMenuPrimaryButtonGroup";
 import { useRouter, useSearchParams } from "next/navigation";
 import DebugPanel from "./DebugPanel";
 import GameDetailsPanel from "./GameDetailsPanel";
 
-export default function LeftPanelContent(props) {
-
-    const searchParams = useSearchParams()
-    const params = Object.fromEntries(searchParams.entries());
-    const { server } = params
-
-    const players = useGameStore((state) => state.gameState?.players)
-
-    const {
-        socket,
-    } = useSocketStore(state => ({
-        socket: state.socket,
-    }));
-
-    const debug = useStore((state) => state.debug)
-    const setDebug = useStore((state) => state.setDebug)
-    const reloadScene = useStore((state) => state.reloadScene)
-    const setShowMenu = useStore((state) => state.setShowMenu)
-
-    // const sidebar = useStore((state) => state.sidebar)
-    // const toggleSidebar = useStore((state) => state.toggleSidebar)
-    // const darkMode = useStore((state) => state.darkMode)
-    // const toggleDarkMode = useStore((state) => state.toggleDarkMode)
-    // const setShowSettingsModal = useStore((state) => state.setShowSettingsModal)
-
-    const {
-        playerLocation,
-        maxHeight, setMaxHeight,
-        shift,
-        gameState
-    } = useGameStore()
+export default function LeftPanelContent() {
+    const server = useSearchParams().get("server");
+    const players = useGameStore((state) => state.gameState?.players);
+    const socket = useSocketStore((state) => state.socket);
+    const debug = useStore((state) => state.debug);
+    const { playerLocation, maxHeight, setMaxHeight, shift } = useGameStore();
 
     return (
-        <div className='w-100'>
-
-            <div className="card card-articles card-sm">
-
-                <div className="card-body">
-
-                    <div className="d-flex flex-wrap mb-3">
-                        <GameMenuPrimaryButtonGroup
-                            useStore={useStore}
-                            type="GameMenu"
-                            useRouter={useRouter}
-                        />
-                    </div>
-
-                    {server &&
-                        <div className="card-footer border">
-
-                            <div className='flex-header'>
-                                <div>Server: {server}</div>
-                                <div>Players: {players?.length || 0}/4</div>
-                            </div>
-
-                            {/* <div className="mb-2">
-                                Status: {gameState?.status || 'N/A'}
-                            </div>
-
-                            <div>
-                                {gameState?.status == 'In Lobby' &&
-                                    <ArticlesButton
-                                        small
-                                        className="w-100"
-                                        onClick={() => {
-                                            socket.emit("start-game")
-                                        }}
-                                    >
-                                        Start Game
+        <Box sx={{ width: "100%" }}>
+            <Card variant="outlined" sx={{ bgcolor: "game.card", fontSize: '0.875rem', borderRadius: '0.375rem' }}>
+                <CardContent sx={{ p: "0.5rem", "&:last-child": { pb: "0.5rem" } }}>
+                    <Box sx={{ display: "flex", flexWrap: "wrap", mb: "1rem" }}>
+                        <GameMenuPrimaryButtonGroup useStore={useStore} type="GameMenu" useRouter={useRouter} />
+                    </Box>
+                    {server && (
+                        <Box sx={{ p: "0.5rem 1rem", border: 1, borderColor: "divider" }}>
+                            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <Box>Server: {server}</Box>
+                                <Box>Players: {players?.length || 0}/4</Box>
+                            </Box>
+                            {!socket?.connected && (
+                                <Box>
+                                    <Box sx={{ fontSize: "1rem", fontWeight: 500, mb: "0.25rem" }}>Not connected</Box>
+                                    <ArticlesButton small sx={{ width: "100%" }} onClick={() => socket.connect()}>
+                                        <LoginIcon sx={{ fontSize: "inherit", mr: "0.2rem" }} />
+                                        Reconnect!
                                     </ArticlesButton>
-                                }
-                            </div> */}
-
-                            {(!socket?.connected && server) &&
-                                <div
-                                    className=""
-                                >
-
-                                    <div className="">
-
-                                        <div className="h6 mb-1">Not connected</div>
-
-                                        <ArticlesButton
-                                            className="w-100 "
-                                            small
-                                            onClick={() => {
-                                                console.log("Reconnect")
-                                                socket.connect()
-                                            }}
-                                        >
-                                            <i className="fad fa-arrow-alt-square-left"></i>
-                                            Reconnect!
-                                        </ArticlesButton>
-
-                                    </div>
-
-                                </div>
-                            }
-
-                        </div>
-                    }                    
-
-                </div>
-            </div>
-
+                                </Box>
+                            )}
+                        </Box>
+                    )}
+                </CardContent>
+            </Card>
             <GameDetailsPanel />
-
-            <div
-                className="card card-articles card-sm"
-            >
-                <div className="card-body d-flex justify-content-between">
-
-                    <div>
-                        <div className="small text-muted">playerData</div>
-                        <div className="small">
-                            <div>X: {playerLocation?.x}</div>
-                            <div>Y: {playerLocation?.y}</div>
-                            {/* <div>Test{playerLocation.y}</div> */}
-                            <div>Z: {playerLocation?.z}</div>
-                            <div>Shift: {shift ? 'True' : 'False'}</div>
-                        </div>
-                        {/* {JSON.stringify(playerData, undefined, 2)} */}
-                    </div>
-
-                    <div>
-                        <div className="small text-muted">maxHeight</div>
-                        <div>Y: {maxHeight}</div>
-                        <ArticlesButton
-                            small
-                            onClick={() => {
-                                setMaxHeight(playerLocation?.y)
-                            }}
-                        >
-                            Reset
-                        </ArticlesButton>
-                    </div>
-
-                </div>
-            </div>
-
-            {/* Debug Controls */}
-            {debug &&
-                <DebugPanel />
-            }
-
-        </div>
-    )
-
+            <Card variant="outlined" sx={{ bgcolor: "game.card", fontSize: '0.875rem', borderRadius: '0.375rem' }}>
+                <CardContent sx={{ p: "0.5rem", display: "flex", justifyContent: "space-between", "&:last-child": { pb: "0.5rem" } }}>
+                    <Box>
+                        <Box sx={{ fontSize: "0.875em", color: "text.secondary" }}>playerData</Box>
+                        <Box sx={{ fontSize: "0.875em" }}>
+                            <Box>X: {playerLocation?.x}</Box>
+                            <Box>Y: {playerLocation?.y}</Box>
+                            <Box>Z: {playerLocation?.z}</Box>
+                            <Box>Shift: {shift ? "True" : "False"}</Box>
+                        </Box>
+                    </Box>
+                    <Box>
+                        <Box sx={{ fontSize: "0.875em", color: "text.secondary" }}>maxHeight</Box>
+                        <Box>Y: {maxHeight}</Box>
+                        <ArticlesButton small onClick={() => setMaxHeight(playerLocation?.y)}>Reset</ArticlesButton>
+                    </Box>
+                </CardContent>
+            </Card>
+            {debug && <DebugPanel />}
+        </Box>
+    );
 }

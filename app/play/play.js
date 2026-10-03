@@ -1,7 +1,7 @@
 "use client"
-import { useEffect, useContext, useState, useRef, useMemo } from 'react';
 
 import dynamic from "next/dynamic";
+import Box from '@mui/material/Box';
 
 import useFullscreen from '@articles-media/articles-dev-box/useFullscreen';
 
@@ -19,21 +19,23 @@ const GameCanvas = dynamic(() => import('@/components/Game/GameCanvas'), {
 export default function GamePage() {
 
     const sidebar = useStore((state) => state.sidebar)
-    const menuOpen = useStore((state) => state.menuOpen)
+    const showMenu = useStore((state) => state.showMenu)
     const sceneKey = useStore((state) => state.sceneKey)
+    const { isFullscreen } = useFullscreen();
 
     return (
 
-        <div
+        <Box
             className={classNames(
                 `${process.env.NEXT_PUBLIC_GAME_KEY}-game-page`,
                 {
-                    'menu-open': menuOpen,
-                    'fullscreen': useFullscreen().isFullscreen,
+                    'menu-open': showMenu,
+                    'fullscreen': isFullscreen,
                     'show-sidebar': sidebar,
                 }
             )}
             id={`${process.env.NEXT_PUBLIC_GAME_KEY}-game-page`}
+            sx={{ position: 'relative', display: 'flex' }}
         >
 
             <GameMenu
@@ -48,7 +50,10 @@ export default function GamePage() {
                 }}
             />
 
-            <div className='canvas-wrap'>
+            <Box className='canvas-wrap' sx={{
+                position: 'relative', width: '100vw', height: '100vh',
+                '& canvas': { position: 'absolute', width: '100%', height: '100%', left: 0, top: 0 },
+            }}>
 
                 <TouchControls />
 
@@ -58,8 +63,8 @@ export default function GamePage() {
                     key={sceneKey}
                 />
 
-            </div>
+            </Box>
 
-        </div>
+        </Box>
     );
 }

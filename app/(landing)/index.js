@@ -1,5 +1,4 @@
 "use client"
-import { useEffect, useContext, useState } from 'react';
 
 import Link from 'next/link'
 
@@ -7,16 +6,25 @@ import { useSocketStore } from '@/hooks/useSocketStore';
 import { useStore } from '@/hooks/useStore';
 
 import PageTemplateLandingPage from '@articles-media/articles-dev-box/PageTemplateLandingPage';
-import { GamepadKeyboard, PieMenu } from '@articles-media/articles-gamepad-helper';
-import RotatingMascot from '@/components/UI/RotatingMascot';
 import LandingBackgroundAnimation from '@/components/Game/LandingBackgroundAnimation';
 import ArticlesButton from '@/components/UI/Button';
 import AnimatedHero from '@/components/UI/AnimatedHero';
+import Box from '@mui/material/Box';
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 
 export default function LobbyPage() {
 
     return (
-        <>
+        <Box sx={{
+            flexGrow: 1,
+            '& .servers': { display: 'grid', gap: '5px', gridTemplateColumns: 'repeat(2, 1fr)' },
+            '& .server': {
+                p: '0.5rem', border: '1px solid rgba(0, 0, 0, 0.25)',
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+            },
+            '& .background-wrap': { position: 'fixed', left: 0, top: 0, width: '100%', height: '100%', zIndex: -1 },
+            '& .background-wrap img': { filter: 'blur(2px)' },
+        }}>
             <PageTemplateLandingPage
                 useSocketStore={useSocketStore}
                 useStore={useStore}
@@ -34,24 +42,23 @@ export default function LobbyPage() {
                 // disableHero                
                 backgroundImage={`${process.env.NEXT_PUBLIC_CDN}games/Assassin/assassin-thumbnail.webp`}
                 CardBodyPrependContent={<>
-                    <div className='mb-2 border-bottom pb-2'>
-                        <Link href={"/play?local_play=true"} className="w-100">
+                    <Box sx={{ mb: '0.5rem', borderBottom: 1, borderColor: 'divider', pb: '0.5rem' }}>
                             <ArticlesButton
-                                className="w-100"
+                                component={Link}
+                                href="/play?local_play=true"
+                                sx={{ width: '100%' }}
                             >
-                                <i className='fas fa-gamepad-alt fa-lg me-2'></i>
+                                <SportsEsportsIcon sx={{ mr: '0.5rem' }} />
                                 Local Play
-                                <span className='ms-2 badge bg-dark' style={{scale: '1.1'}}>Works offline!</span>
+                                <Box component="span" sx={{ ml: '0.5rem', px: '0.65em', py: '0.35em', fontSize: '0.75em', fontWeight: 700, lineHeight: 1, borderRadius: '0.375rem', bgcolor: '#212529', color: '#fff', scale: '1.1' }}>Works offline!</Box>
                             </ArticlesButton>
-                        </Link>
-                        <div className='small text-center'>Play with 2 to 4 gamepads locally.</div>
-                    </div>
+                        <Box sx={{ fontSize: '0.875em', textAlign: 'center' }}>Play with 2 to 4 gamepads locally.</Box>
+                    </Box>
                 </>}
                 // singlePlayerConfig={{
 
                 // }}
                 NicknameInputConfig={{
-                    // PreComponent: <div className='flex-shrink-0 me-2'></div>
                 }}
                 multiplayerConfig={{
                     type: "WebSocket",
@@ -79,6 +86,6 @@ export default function LobbyPage() {
                 disableGameScoreboard={process.env.NEXT_PUBLIC_ENABLE_ARTICLES !== 'true'}
                 disableAd={process.env.NEXT_PUBLIC_ENABLE_ARTICLES !== 'true'}
             />
-        </>
+        </Box>
     );
 }

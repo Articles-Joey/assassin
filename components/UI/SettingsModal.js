@@ -1,190 +1,75 @@
+"use client";
+
 import { useState } from "react";
+import Box from "@mui/material/Box";
+import Chip from "@mui/material/Chip";
+import Divider from "@mui/material/Divider";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Slider from "@mui/material/Slider";
+import Switch from "@mui/material/Switch";
+import Tab from "@mui/material/Tab";
+import Tabs from "@mui/material/Tabs";
+import Typography from "@mui/material/Typography";
+import ArticlesButton from "./Button";
+import ArticlesModal from "./ArticlesModal";
 
-import { Modal, Form } from "react-bootstrap"
+const controls = [
+    { action: "Move Up", defaultKeyboardKey: "W" },
+    { action: "Move Down", defaultKeyboardKey: "S" },
+    { action: "Move Left", defaultKeyboardKey: "A" },
+    { action: "Move Right", defaultKeyboardKey: "D" },
+    { action: "Shoot", defaultKeyboardKey: "Touch or Click" },
+];
 
-import ArticlesButton from "@/components/UI/Button";
-
-export default function FourFrogsSettingsModal({
-    show,
-    setShow,
-}) {
-
-    const [showModal, setShowModal] = useState(true)
-
-    const [lightboxData, setLightboxData] = useState(null)
-
-    const [tab, setTab] = useState('Controls')
+export default function FourFrogsSettingsModal({ show = true, setShow }) {
+    const [tab, setTab] = useState("Controls");
 
     return (
-        <>
-            {/* {lightboxData && (
-                <Lightbox
-                    mainSrc={lightboxData?.location}
-                    onCloseRequest={() => setLightboxData(null)}
-                    reactModalStyle={{
-                        overlay: {
-                            zIndex: '2000'
-                        }
-                    }}
-                />
-            )} */}
-
-            <Modal
-                className="articles-modal"
-                size='md'
-                show={showModal}
-                // To much jumping with little content for now
-                // centered
-                scrollable
-                onExited={() => {
-                    setShow(false)
-                }}
-                onHide={() => {
-                    setShowModal(false)
-                }}
-            >
-
-                <Modal.Header closeButton>
-                    <Modal.Title>Game Settings</Modal.Title>
-                </Modal.Header>
-
-                <Modal.Body className="flex-column p-0">
-
-                    <div className='p-2'>
-                        {[
-                            'Controls',
-                            'Audio',
-                            'Chat'
-                        ].map(item =>
-                            <ArticlesButton
-                                key={item}
-                                active={tab == item}
-                                onClick={() => { setTab(item) }}
-                            >
-                                {item}
-                            </ArticlesButton>
-                        )}
-                    </div>
-
-                    <hr className="my-0" />
-
-                    <div className="p-2">
-                        {tab == 'Controls' &&
-                            <div>
-                                {[
-                                    {
-                                        action: 'Move Up',
-                                        defaultKeyboardKey: 'W'
-                                    },
-                                    {
-                                        action: 'Move Down',
-                                        defaultKeyboardKey: 'S'
-                                    },
-                                    {
-                                        action: 'Move Left',
-                                        defaultKeyboardKey: 'A'
-                                    },
-                                    {
-                                        action: 'Move Right',
-                                        defaultKeyboardKey: 'D'
-                                    },
-                                    {
-                                        action: 'Shoot',
-                                        defaultKeyboardKey: 'Touch or Click'
-                                    },
-                                ].map(obj =>
-                                    <div key={obj.action}>
-                                        <div className="flex-header border-bottom pb-1 mb-1">
-
-                                            <div>
-                                                <div>{obj.action}</div>
-                                                {obj.emote && <div className="span badge bg-dark">Emote</div>}
-                                            </div>
-
-                                            <div>
-
-                                                <div className="badge badge-hover bg-articles me-1">{obj.defaultKeyboardKey}</div>
-
-                                                <ArticlesButton 
-                                                    className=""
-                                                    small
-                                                >
-                                                    Change Key
-                                                </ArticlesButton>
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        }
-                        {tab == 'Audio' &&
-                            <>
-                                <Form.Label className="mb-0">Game Volume</Form.Label>
-                                <Form.Range />
-                                <Form.Label className="mb-0">Music Volume</Form.Label>
-                                <Form.Range />
-                            </>
-                        }
-                        {tab == 'Chat' &&
-                            <>
-                                <Form.Check
-                                    type="switch"
-                                    id="custom-switch"
-                                    label="Game chat panel"
-                                />
-                                <Form.Check
-                                    type="switch"
-                                    id="custom-switch"
-                                    label="Censor chat"
-                                />
-                                <Form.Check
-                                    type="switch"
-                                    id="custom-switch"
-                                    label="Game chat speech bubbles"
-                                />
-                            </>
-                        }
-                    </div>
-
-                </Modal.Body>
-
-                <Modal.Footer className="justify-content-between">
-
-                    {/* <div></div> */}
-
-
-                    <div>
-
-                        <ArticlesButton
-                            variant="outline-dark"
-                            onClick={() => {
-                                setShow(false)
-                            }}
-                        >
-                            Close
-                        </ArticlesButton>
-
-                        <ArticlesButton
-                            variant="outline-danger ms-3"
-                            onClick={() => {
-                                setShow(false)
-                            }}
-                        >
-                            Reset
-                        </ArticlesButton>
-
-                    </div>
-
-
-                    {/* <ArticlesButton variant="success" onClick={() => setValue(false)}>
-                    Save
-                </ArticlesButton> */}
-
-                </Modal.Footer>
-
-            </Modal>
-        </>
-    )
-
+        <ArticlesModal
+            show={show}
+            setShow={setShow}
+            title="Game Settings"
+            centered={false}
+            contentSx={{ display: 'flex', flexDirection: 'column', p: 0 }}
+            footerOverride={(setOpen) => (
+                <Box>
+                    <ArticlesButton variant="outline-dark" onClick={() => setOpen(false)}>Close</ArticlesButton>
+                    <ArticlesButton variant="outline-danger" color="error" sx={{ ml: "1rem" }} onClick={() => setShow(false)}>Reset</ArticlesButton>
+                </Box>
+            )}
+        >
+            <Tabs value={tab} onChange={(_, value) => setTab(value)} aria-label="Settings categories">
+                {["Controls", "Audio", "Chat"].map((item) => <Tab key={item} value={item} label={item} />)}
+            </Tabs>
+            <Divider />
+            <Box sx={{ p: "0.5rem" }}>
+                {tab === "Controls" && (
+                    <Box>
+                        {controls.map((control) => (
+                            <Box key={control.action} sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: 1, borderColor: "divider", pb: "0.25rem", mb: "0.25rem" }}>
+                                <Box>{control.action}</Box>
+                                <Box sx={{ display: "flex", alignItems: "center" }}>
+                                    <Chip size="small" label={control.defaultKeyboardKey} sx={{ mr: "0.25rem", bgcolor: "primary.main", color: "primary.contrastText" }} />
+                                    <ArticlesButton small>Change Key</ArticlesButton>
+                                </Box>
+                            </Box>
+                        ))}
+                    </Box>
+                )}
+                {tab === "Audio" && <>
+                    <Typography id="game-volume-label">Game Volume</Typography>
+                    <Slider aria-labelledby="game-volume-label" defaultValue={50} />
+                    <Typography id="music-volume-label">Music Volume</Typography>
+                    <Slider aria-labelledby="music-volume-label" defaultValue={50} />
+                </>}
+                {tab === "Chat" && (
+                    <Box sx={{ display: "flex", flexDirection: "column" }}>
+                        <FormControlLabel control={<Switch />} label="Game chat panel" />
+                        <FormControlLabel control={<Switch />} label="Censor chat" />
+                        <FormControlLabel control={<Switch />} label="Game chat speech bubbles" />
+                    </Box>
+                )}
+            </Box>
+        </ArticlesModal>
+    );
 }

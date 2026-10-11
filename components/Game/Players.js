@@ -4,12 +4,13 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber"
 
 import { NearestFilter, RepeatWrapping, TextureLoader, Vector3 } from "three";
 
-import { Debug, Physics, useBox, useCylinder, useSphere } from "@react-three/cannon";
+import { CylinderCollider, RigidBody, useBeforePhysicsStep } from "@react-three/rapier";
 import { Model as SpacesuitModel } from "./Spacesuit";
 import { useGameStore } from "@/hooks/useGameStore";
 
 // import Character from '@articles-media/articles-amcot-character/QuaterniusModular';
 import Character from "./Character";
+import { COLLISION_GROUPS } from "./physicsGroups";
 
 import { Billboard, Text } from "@react-three/drei";
 
@@ -83,6 +84,8 @@ export function Npc({ player_data }) {
     const [targetPosition, setTargetPosition] = useState([0, 0, 0]); // Initial target position
 
     const npcRef = useRef();
+    const bodyRef = useRef(null);
+    const [initialPosition] = useState(() => [player_data?.x || 0, 0, player_data?.z || 0]);
 
     const [currentAnimation, setCurrentAnimation] = useState('Idle');
     const posHistory = useRef([]);
@@ -101,49 +104,34 @@ export function Npc({ player_data }) {
         return [x, 0, z]; // Y remains 0 for a flat plane
     };
 
-    const [ref, api] = useCylinder(() => ({
-        mass: 1,
-        type: 'Kinematic',
-        args: [1, 1, 5, 8],
-        position: [
-            player_data?.x || 0,
-            0,
-            player_data?.z || 0,
-        ],
-        // Put NPCs in their own collision group (4) so they don't collide
-        // with players (group 1). They should still collide with the ground
-        // (group 2), so set mask accordingly.
-        collisionFilterGroup: 4,
-        collisionFilterMask: 2,
-        userData: {
-            player: true,
-            id: player_data?.id,
-            dead: player_data?.dead
-        },
-        onCollideBegin: (e) => {
-            if (e.body.userData.isSpotlight) {
-                console.log("Spotted!", e.body.userData, player_data)
-                setSpotted(true)
-                setLastSpotted(new Date())
-            }
-        },
-        onCollideEnd: (e) => {
-            if (e.body.userData.isSpotlight) {
-                console.log("Spotted!", e.body.userData.isSpotlight)
-                setSpotted(false)
-                setLastSpotted(new Date())
-            }
+    const handleIntersectionEnter = ({ other }) => {
+        if (other.rigidBodyObject?.userData.isSpotlight) {
+            console.log("Spotted!", other.rigidBodyObject.userData, player_data)
+            setSpotted(true)
+            setLastSpotted(new Date())
         }
-    }))
+    }
+
+    const handleIntersectionExit = ({ other }) => {
+        if (other.rigidBodyObject?.userData.isSpotlight) {
+            console.log("Spotted!", other.rigidBodyObject.userData.isSpotlight)
+            setSpotted(false)
+            setLastSpotted(new Date())
+        }
+    }
+
+    useBeforePhysicsStep(() => {
+        if (player_data && bodyRef.current) {
+            bodyRef.current.setNextKinematicTranslation({
+                x: player_data.x || 0,
+                y: 0,
+                z: player_data.z || 0,
+            })
+        }
+    })
 
     useFrame(() => {
         if (player_data) {
-            api.position.set(
-                player_data.x || 0,
-                0,
-                player_data.z || 0
-            )
-
             if (player_data.ry !== undefined && npcRef.current) {
                 npcRef.current.rotation.y = player_data.ry
             }
@@ -198,7 +186,25 @@ export function Npc({ player_data }) {
 
     return (
         <>
-            <group ref={ref}>
+            <RigidBody
+                ref={bodyRef}
+                type="kinematicPosition"
+                colliders={false}
+                position={initialPosition}
+                userData={{
+                    player: true,
+                    id: player_data?.id,
+                    number: player_data?.number,
+                    dead: player_data?.dead,
+                }}
+            >
+                <CylinderCollider
+                    args={[2.5, 1]}
+                    mass={1}
+                    collisionGroups={COLLISION_GROUPS.npc}
+                    onIntersectionEnter={handleIntersectionEnter}
+                    onIntersectionExit={handleIntersectionExit}
+                />
                 <group ref={npcRef}>
 
                     {/* <SpacesuitModel
@@ -251,7 +257,7 @@ export function Npc({ player_data }) {
                     {/* <Outlines thickness={1} color="red" /> */}
 
                 </group>
-            </group>
+            </RigidBody>
 
             {/* TODO */}
             {/* {targetPosition &&

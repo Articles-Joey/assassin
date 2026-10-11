@@ -1,9 +1,8 @@
 import { useFrame, useThree } from "@react-three/fiber"
-import { useCylinder, useSphere } from "@react-three/cannon"
+import { BallCollider, CylinderCollider, RigidBody, useBeforePhysicsStep, useRapier } from "@react-three/rapier"
 import { useGLTF, useAnimations, Text } from '@react-three/drei'
 import { memo, useEffect, useRef, useState } from "react"
 import { Vector3 } from "three"
-import * as THREE from 'three';
 import { useKeyboard } from "@/hooks/useKeyboard"
 
 import { useControllerStore } from '@/hooks/useControllerStore';
@@ -16,6 +15,7 @@ import useTouchControlsStore from "@/hooks/useTouchControlsStore"
 
 // import Character from '@articles-media/articles-amcot-character/QuaterniusModular';
 import Character from "./Character"
+import { COLLISION_GROUPS } from "./physicsGroups"
 
 const JUMP_FORCE = 0;
 const SPEED = 6;
@@ -29,6 +29,10 @@ function myToFixed(i, digits) {
 }
 
 function Player(props) {
+
+    const characterRef = useRef(null)
+    const playerReachRef = useRef(null)
+    const { rapier } = useRapier()
 
     const searchParams = useSearchParams()
     const params = Object.fromEntries(searchParams.entries());
@@ -79,9 +83,9 @@ function Player(props) {
         if (controllerState.axes && Math.abs(controllerState?.axes[0]) > 0.3) {
 
             if (controllerState?.axes[0] > 0) {
-                characterRefApi.position.set([-1, 5, 0]);
+                characterRef.current?.setTranslation({ x: -1, y: 5, z: 0 }, true);
             } else {
-                characterRefApi.position.set([1, 5, 0]);
+                characterRef.current?.setTranslation({ x: 1, y: 5, z: 0 }, true);
             }
 
         }
@@ -90,10 +94,10 @@ function Player(props) {
 
     useEffect(() => {
 
-        if (teleport) {
+        if (teleport && characterRef.current) {
 
             console.log("Teleport has been called!", teleport)
-            characterRefApi.position.set(teleport[0], teleport[1], teleport[2]);
+            characterRef.current.setTranslation({ x: teleport[0], y: teleport[1], z: teleport[2] }, true);
             setTeleport(false)
 
         }
@@ -104,87 +108,36 @@ function Player(props) {
 
     const { camera } = useThree()
 
-    const [characterRef, characterRefApi] = useSphere(() => ({
-        mass: 1,
-        args: [1],
-        position: [0, 2, 0],
-        collisionFilterGroup: 1, // Player is in group 1
-        collisionFilterMask: 2, // Player can collide with group 2 (rocks)
-        onCollide: (e) => {
-            console.log("Player Collided", e?.body.userData?.number)
-        }
-    }))
-
-    const material = new THREE.MeshPhysicalMaterial({
-        color: 'blue',
-        // opacity: 0.5,
-        // transparent: true
-    });
-
-    const vel = useRef([0, 0, 0])
-    useEffect(() => {
-        characterRefApi.velocity.subscribe((v) => vel.current = v)
-    }, [characterRefApi.velocity])
-
     const pos = useRef([0, 0, 0])
 
     const touching = useRef(new Set())
 
-    const [playerReachRef, playerReachApi] = useCylinder(() => ({
-        mass: 0,
-        type: 'Kinematic',
-        isTrigger: true,
-        args: [2, 2, 1, 8],
-        position: [0, -10, 0], // Initially below the scene
-        userData: {
-            playerReach: true,
-        },
-        onCollideBegin: (e) => {
-            // if (e.body.userData.isSpotlight) {
-            //     console.log("Spotted!", e.body.userData.isSpotlight)
-            //     setSpotted(true)
-            //     setLastSpotted(new Date())
-            // }
-            if (e.body.userData.player) {
-                console.log("Entered player reach!", e.body.userData)
-                touching.current.add(e.body)
-                // setInPlayerReach(true)
-            }
-        },
-        onCollideEnd: (e) => {
-            // if (e.body.userData.isSpotlight) {
-            //     console.log("Spotted!", e.body.userData.isSpotlight)
-            //     setSpotted(false)
-            //     setLastSpotted(new Date())
-            // }
-            if (e.body.userData.player) {
-                console.log("Left player reach!", e.body.userData)
-                touching.current.delete(e.body)
-                // setInPlayerReach(false)
-            }
+    const handleReachEnter = ({ other }) => {
+        const body = other.rigidBodyObject
+        if (body?.userData.player) {
+            console.log("Entered player reach!", body.userData)
+            touching.current.add(body)
         }
-    }))
+    }
+
+    const handleReachExit = ({ other }) => {
+        const body = other.rigidBodyObject
+        if (body?.userData.player) {
+            console.log("Left player reach!", body.userData)
+            touching.current.delete(body)
+        }
+    }
 
     const playerModelRef = useRef()
     const [currentAction, setCurrentAction] = useState('Idle')
     const movingFrames = useRef(0)
     const idleFrames = useRef(0)
-    useEffect(() => {
-        // Subscribe once to the physics position and copy it to `pos`
-        // and the reach trigger. Also update the visual model position
-        // when it's mounted so the visual model doesn't inherit physics
-        // rotation.
-        const unsub = characterRefApi.position.subscribe((p) => {
-            pos.current = p
-            playerReachApi.position.set(...p)
-            if (playerModelRef.current) playerModelRef.current.position.set(...p)
-        })
-
-        return () => {
-            if (typeof unsub === 'function') unsub()
+    useBeforePhysicsStep(() => {
+        // Keep the reach sensor upright while following the dynamic sphere.
+        if (characterRef.current && playerReachRef.current) {
+            playerReachRef.current.setNextKinematicTranslation(characterRef.current.translation())
         }
-
-    }, [characterRefApi.position, playerReachApi.position])
+    })
 
     useEffect(() => {
         console.log("Shift", isShifting)
@@ -192,6 +145,12 @@ function Player(props) {
     }, [isShifting])
 
     useFrame(() => {
+
+        const body = characterRef.current
+        if (!body) return
+
+        const position = body.translation()
+        pos.current = [position.x, position.y, position.z]
 
         addDistance(0.1)
 
@@ -277,15 +236,13 @@ function Player(props) {
             .multiplyScalar(SPEED * (shift ? 2 : 1))
         // .applyEuler(camera.rotation)
 
-        characterRefApi.velocity.set(direction.x, 0, direction.z)
+        body.setLinvel({ x: direction.x, y: 0, z: direction.z }, true)
 
         const BOUNDS = 23; // Half of 23x23
         if (Math.abs(pos.current[0]) > BOUNDS || Math.abs(pos.current[2]) > BOUNDS) {
-            characterRefApi.position.set(
-                Math.max(-BOUNDS, Math.min(BOUNDS, pos.current[0])),
-                pos.current[1],
-                Math.max(-BOUNDS, Math.min(BOUNDS, pos.current[2]))
-            );
+            pos.current[0] = Math.max(-BOUNDS, Math.min(BOUNDS, pos.current[0]))
+            pos.current[2] = Math.max(-BOUNDS, Math.min(BOUNDS, pos.current[2]))
+            body.setTranslation({ x: pos.current[0], y: pos.current[1], z: pos.current[2] }, true);
         }
 
         // Ensure the visual model faces movement direction and stays upright.
@@ -297,7 +254,7 @@ function Player(props) {
             }
             playerModelRef.current.rotation.x = 0
             playerModelRef.current.rotation.z = 0
-            playerModelRef.current.position.y = 0
+            playerModelRef.current.position.set(pos.current[0], 0, pos.current[2])
         }
 
         // Debounce player animation switching to avoid rapid flashing
@@ -322,8 +279,6 @@ function Player(props) {
 
         if (
             (jump || touchControls.jump)
-            // && 
-            // Math.abs(vel.current[1]) < 0.05 
             &&
             !attackCoolDown
         ) {
@@ -378,23 +333,38 @@ function Player(props) {
                 />
             </group> */}
 
-            <mesh ref={playerReachRef}>
-                <cylinderGeometry args={[2, 2, 1, 8]} /> {/* Cylinder dimensions */}
-                <meshStandardMaterial
-                    color="orange"
-                    transparent={true}
-                    opacity={0.5}
-                />
-            </mesh>
-
-            <mesh
-                ref={characterRef}
-                material={material}
+            <RigidBody
+                ref={playerReachRef}
+                type="kinematicPosition"
+                colliders={false}
+                position={[0, -10, 0]}
+                userData={{ playerReach: true }}
             >
-                {/* Invisible/physics-only sphere; visual model is separate */}
-                {/* <sphereGeometry args={[1, 32, 32]} />
-                <meshStandardMaterial visible={false} /> */}
-            </mesh>
+                {/* Both the reach sensor and NPCs are kinematic bodies. */}
+                <CylinderCollider
+                    args={[0.5, 2]}
+                    sensor
+                    collisionGroups={COLLISION_GROUPS.sensor}
+                    activeCollisionTypes={rapier.ActiveCollisionTypes.ALL}
+                    onIntersectionEnter={handleReachEnter}
+                    onIntersectionExit={handleReachExit}
+                />
+                <mesh>
+                    <cylinderGeometry args={[2, 2, 1, 8]} />
+                    <meshStandardMaterial color="orange" transparent={true} opacity={0.5} />
+                </mesh>
+            </RigidBody>
+
+            <RigidBody
+                ref={characterRef}
+                colliders={false}
+                position={[0, 2, 0]}
+                onCollisionEnter={({ other }) => {
+                    console.log("Player Collided", other.rigidBodyObject?.userData?.number)
+                }}
+            >
+                <BallCollider args={[1]} mass={1} collisionGroups={COLLISION_GROUPS.player} />
+            </RigidBody>
 
             <group 
                 ref={playerModelRef}

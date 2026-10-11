@@ -5,18 +5,21 @@ import { Sky, useDetectGPU, useTexture, OrbitControls, Cylinder, QuadraticBezier
 
 import { NearestFilter, RepeatWrapping, TextureLoader, Vector3 } from "three";
 
-import { Debug, Physics, useBox, useCylinder, useSphere } from "@react-three/cannon";
+import { CuboidCollider, CylinderCollider, RigidBody, useBeforePhysicsStep, useRapier } from "@react-three/rapier";
 import { degToRad } from "three/src/math/MathUtils";
 
 import { SpotLight } from "three";
 import { useGameStore } from "@/hooks/useGameStore";
 import { useSocketStore } from "@/hooks/useSocketStore";
 import useGameHelpers from "@/hooks/useGameHelpers";
+import { COLLISION_GROUPS } from "./physicsGroups";
 
 const game_name = 'Assassin'
 const game_key = 'assassin'
 
 export default function Ground() {
+
+    const { rapier } = useRapier()
 
     const {
         socket,
@@ -31,52 +34,25 @@ export default function Ground() {
         removeBullet,
     } = useGameHelpers()
 
-    const [ref, api] = useBox(() => ({
-        mass: 0,
-        type: 'Static',
-        args: [100, 0.5, 100],
-        position: [0, 0, 0],
-        collisionFilterGroup: 2, // Rocks are in group 2
-        // Rocks should collide with players (group 1) and NPCs (group 4)
-        collisionFilterMask: 1 | 4,
-    }))
-
     const visualSpotlightRef = useRef()
-    const [spotLightRef, spotLightApi] = useCylinder(() => ({
-        mass: 0,
-        type: 'Kinematic',
-        args: [5, 5, 1, 32],
-        position: [0, -10, 0], // Initially below the scene
-        userData: {
-            isSpotlight: true,
-        },
-        onCollideBegin: (e) => {
-            // if (e.body.userData.isSpotlight) {
-            //     console.log("Spotted!", e.body.userData.isSpotlight)
-            //     setSpotted(true)
-            //     setLastSpotted(new Date())
-            // }
-            if (e.body.userData.player) {
-                console.log("Player under spotlight!", e.body.userData)
-                touching.current.add(e.body)
-                // setInPlayerReach(true)
+    const spotLightRef = useRef(null)
 
-                handleSpotPlayer(e.body.userData.id)
-            }
-        },
-        onCollideEnd: (e) => {
-            // if (e.body.userData.isSpotlight) {
-            //     console.log("Spotted!", e.body.userData.isSpotlight)
-            //     setSpotted(false)
-            //     setLastSpotted(new Date())
-            // }
-            if (e.body.userData.player) {
-                console.log("Player not under spotlight!", e.body.userData)
-                touching.current.delete(e.body)
-                // setInPlayerReach(false)
-            }
+    const handleSpotlightEnter = ({ other }) => {
+        const body = other.rigidBodyObject
+        if (body?.userData.player) {
+            console.log("Player under spotlight!", body.userData)
+            touching.current.add(body)
+            handleSpotPlayer(body.userData.id)
         }
-    }))
+    }
+
+    const handleSpotlightExit = ({ other }) => {
+        const body = other.rigidBodyObject
+        if (body?.userData.player) {
+            console.log("Player not under spotlight!", body.userData)
+            touching.current.delete(body)
+        }
+    }
 
 
     const touching = useRef(new Set())
@@ -153,11 +129,14 @@ export default function Ground() {
         };
     }, [isHost]);
 
-    // Update spotlight position when hover changes
+    useBeforePhysicsStep(() => {
+        const [x, y, z] = hoverPosition || [0, -10, 0]
+        spotLightRef.current?.setNextKinematicTranslation({ x, y, z })
+    })
+
+    // Update the visual spotlight position when hover changes.
     useEffect(() => {
         if (hoverPosition) {
-            spotLightApi.position.set(...hoverPosition)
-
             if (visualSpotlightRef.current) {
                 const [x, y, z] = hoverPosition
                 visualSpotlightRef.current.position.set(x, y + 2, z)
@@ -165,8 +144,6 @@ export default function Ground() {
             }
         } else {
             // Optionally hide it by moving it far away
-            spotLightApi.position.set(0, -10, 0)
-
             if (visualSpotlightRef.current) {
                 visualSpotlightRef.current.position.set(0, -10, 0)
                 visualSpotlightRef.current.target.position.set(0, -11, 0)
@@ -231,17 +208,37 @@ export default function Ground() {
     return (
         <group>
 
-            <mesh
-                ref={ref}
-                castShadow
-                onPointerMove={e => handlePointerMove(e, socket)} // Listen for pointer move
-                onPointerOut={handlePointerOut} // Handle when the pointer leaves
-                onClick={handleOnClick}
+            <RigidBody type="fixed" colliders={false}>
+                <CuboidCollider args={[50, 0.25, 50]} collisionGroups={COLLISION_GROUPS.ground} />
+                <mesh
+                    castShadow
+                    onPointerMove={e => handlePointerMove(e, socket)} // Listen for pointer move
+                    onPointerOut={handlePointerOut} // Handle when the pointer leaves
+                    onClick={handleOnClick}
+                >
+                    <boxGeometry args={[100, 0.5, 100]} />
+                    {/* <BeachBall /> */}
+                    <meshStandardMaterial opacity={0} transparent={true} color="#08e8de" />
+                </mesh>
+            </RigidBody>
+
+            <RigidBody
+                ref={spotLightRef}
+                type="kinematicPosition"
+                colliders={false}
+                position={[0, -10, 0]}
+                userData={{ isSpotlight: true }}
             >
-                <boxGeometry args={[100, 0.5, 100]} />
-                {/* <BeachBall /> */}
-                <meshStandardMaterial opacity={0} transparent={true} color="#08e8de" />
-            </mesh>
+                {/* Spotlight intersections must include kinematic NPCs. */}
+                <CylinderCollider
+                    args={[0.5, 5]}
+                    sensor
+                    collisionGroups={COLLISION_GROUPS.sensor}
+                    activeCollisionTypes={rapier.ActiveCollisionTypes.ALL}
+                    onIntersectionEnter={handleSpotlightEnter}
+                    onIntersectionExit={handleSpotlightExit}
+                />
+            </RigidBody>
 
             {(syncedHoverPosition) &&
                 <mesh position={syncedHoverPosition}>

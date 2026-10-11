@@ -5,7 +5,7 @@ import { Sky, useDetectGPU, useTexture, OrbitControls, Cylinder, QuadraticBezier
 
 // import { NearestFilter, RepeatWrapping, TextureLoader, Vector3 } from "three";
 
-import { Debug, Physics, useBox, useCylinder, useSphere } from "@react-three/cannon";
+import { Physics } from "@react-three/rapier";
 import { degToRad } from "three/src/math/MathUtils";
 import FloorPlane from "./FloorPlane";
 // import { Model as SpacesuitModel } from "@/components/Games/Assets/Quaternius/men/Spacesuit";
@@ -58,7 +58,7 @@ function GameCanvas({
                     ]}
                 // rotation={[degToRad(-90), 0, 0]}
                 />
-    
+
                 <FloorPlane
                     args={[50, 50]}
                     position={[
@@ -68,7 +68,7 @@ function GameCanvas({
                     ]}
                     rotation={[degToRad(0), 0, 0]}
                 />
-    
+
                 <LavaPlane
                     args={[150, 150]}
                     position={[
@@ -85,19 +85,17 @@ function GameCanvas({
             </Suspense>
 
             <Suspense>
-                <Physics>
-    
-                    <Debug scale={debug ? 1 : 0}>
-    
+                <Physics debug={debug} gravity={[0, -9.81, 0]}>
+
+                    {!landingAnimationMode &&
                         <Player />
-    
-                        {/* <Npc /> */}
-                        <Npcs />
-    
-                        <Ground />
-    
-                    </Debug>
-    
+                    }
+
+                    {/* <Npc /> */}
+                    <Npcs />
+
+                    <Ground />
+
                 </Physics>
             </Suspense>
 

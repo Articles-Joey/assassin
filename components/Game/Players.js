@@ -1,10 +1,25 @@
-import { createContext, createRef, forwardRef, memo, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+    createContext,
+    createRef,
+    forwardRef,
+    memo,
+    useContext,
+    useEffect,
+    useLayoutEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 
-import { Canvas, useFrame, useThree } from "@react-three/fiber"
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 
 import { NearestFilter, RepeatWrapping, TextureLoader, Vector3 } from "three";
 
-import { CylinderCollider, RigidBody, useBeforePhysicsStep } from "@react-three/rapier";
+import {
+    CylinderCollider,
+    RigidBody,
+    useBeforePhysicsStep,
+} from "@react-three/rapier";
 import { Model as SpacesuitModel } from "./Spacesuit";
 import { useGameStore } from "@/hooks/useGameStore";
 
@@ -13,13 +28,13 @@ import Character from "./Character";
 import { COLLISION_GROUPS } from "./physicsGroups";
 
 import { Billboard, Text } from "@react-three/drei";
+import { useStore } from "@/hooks/useStore";
 
 export default function Npcs() {
-
     // const isHost = useGameStore((state) => state.isHost)
-    const gameState = useGameStore((state) => state.gameState)
-    const players = useGameStore((state) => state.gameState.players)
-    const npc_players = useGameStore((state) => state.gameState.npc_players)
+    const gameState = useGameStore((state) => state.gameState);
+    const players = useGameStore((state) => state.gameState.players);
+    const npc_players = useGameStore((state) => state.gameState.npc_players);
 
     // useEffect(() => {
     //     if (isHost && !players) {
@@ -53,7 +68,7 @@ export default function Npcs() {
                         />
                         {/* <Outlines thickness={0.05} color="hotpink" /> */}
                     </mesh>
-                )
+                );
             })}
             {npc_players?.map((item, item_i) => {
                 return (
@@ -64,16 +79,17 @@ export default function Npcs() {
                         />
                         {/* <Outlines thickness={0.05} color="hotpink" /> */}
                     </mesh>
-                )
+                );
             })}
         </group>
-    )
+    );
 }
 
 export function Npc({ player_data }) {
+    const debug = useStore((state) => state.debug);
 
-    const isHost = useGameStore((state) => state.isHost)
-    const setPlayers = useGameStore((state) => state.setPlayers)
+    const isHost = useGameStore((state) => state.isHost);
+    const setPlayers = useGameStore((state) => state.setPlayers);
 
     const [inPlayerReach, setInPlayerReach] = useState(false);
     const [dead, setDead] = useState(false);
@@ -85,17 +101,21 @@ export function Npc({ player_data }) {
 
     const npcRef = useRef();
     const bodyRef = useRef(null);
-    const [initialPosition] = useState(() => [player_data?.x || 0, 0, player_data?.z || 0]);
+    const [initialPosition] = useState(() => [
+        player_data?.x || 0,
+        0,
+        player_data?.z || 0,
+    ]);
 
-    const [currentAnimation, setCurrentAnimation] = useState('Idle');
+    const [currentAnimation, setCurrentAnimation] = useState("Idle");
     const posHistory = useRef([]);
     const movingFrames = useRef(0);
     const idleFrames = useRef(0);
 
-    const deadRef = useRef(player_data?.dead)
+    const deadRef = useRef(player_data?.dead);
     useEffect(() => {
-        deadRef.current = player_data?.dead
-    }, [player_data?.dead])
+        deadRef.current = player_data?.dead;
+    }, [player_data?.dead]);
 
     // Function to generate a random position within -25 to 25 range on X and Z
     const getRandomPosition = () => {
@@ -106,19 +126,23 @@ export function Npc({ player_data }) {
 
     const handleIntersectionEnter = ({ other }) => {
         if (other.rigidBodyObject?.userData.isSpotlight) {
-            console.log("Spotted!", other.rigidBodyObject.userData, player_data)
-            setSpotted(true)
-            setLastSpotted(new Date())
+            console.log(
+                "Spotted!",
+                other.rigidBodyObject.userData,
+                player_data,
+            );
+            setSpotted(true);
+            setLastSpotted(new Date());
         }
-    }
+    };
 
     const handleIntersectionExit = ({ other }) => {
         if (other.rigidBodyObject?.userData.isSpotlight) {
-            console.log("Spotted!", other.rigidBodyObject.userData.isSpotlight)
-            setSpotted(false)
-            setLastSpotted(new Date())
+            console.log("Spotted!", other.rigidBodyObject.userData.isSpotlight);
+            setSpotted(false);
+            setLastSpotted(new Date());
         }
-    }
+    };
 
     useBeforePhysicsStep(() => {
         if (player_data && bodyRef.current) {
@@ -126,14 +150,14 @@ export function Npc({ player_data }) {
                 x: player_data.x || 0,
                 y: 0,
                 z: player_data.z || 0,
-            })
+            });
         }
-    })
+    });
 
     useFrame(() => {
         if (player_data) {
             if (player_data.ry !== undefined && npcRef.current) {
-                npcRef.current.rotation.y = player_data.ry
+                npcRef.current.rotation.y = player_data.ry;
             }
 
             // Animation logic with debounce based on movement over last frames
@@ -143,7 +167,7 @@ export function Npc({ player_data }) {
 
             let nextAnimation = currentAnimation;
             if (player_data.seenDead) {
-                nextAnimation = 'Death';
+                nextAnimation = "Death";
             } else if (posHistory.current.length >= 2) {
                 const first = posHistory.current[0];
                 const last = posHistory.current[posHistory.current.length - 1];
@@ -162,12 +186,12 @@ export function Npc({ player_data }) {
                 }
 
                 if (movingFrames.current >= 2) {
-                    nextAnimation = 'Walk';
+                    nextAnimation = "Walk";
                     movingFrames.current = 0;
                 }
 
                 if (idleFrames.current >= 6) {
-                    nextAnimation = 'Idle';
+                    nextAnimation = "Idle";
                     idleFrames.current = 0;
                 }
 
@@ -182,7 +206,7 @@ export function Npc({ player_data }) {
                 setCurrentAnimation(nextAnimation);
             }
         }
-    })
+    });
 
     return (
         <>
@@ -206,35 +230,48 @@ export function Npc({ player_data }) {
                     onIntersectionExit={handleIntersectionExit}
                 />
                 <group ref={npcRef}>
-
                     {/* <SpacesuitModel
                         scale={spotted ? 3 : 2}
                         action={deadRef.current && lastSpotted > deadRef.current ? 'Death' : 'Walk'}
                     /> */}
 
                     <Billboard>
+                        {player_data?.seenDead && (
+                            <Text
+                                position={[0, 6, 0]}
+                                scale={0.7}
+                            >
+                                Dead
+                            </Text>
+                        )}
 
-                        {player_data?.seenDead && (<Text
-                            position={[0, 6, 0]}
-                            scale={0.7}
-                        >
-                            Dead
-                        </Text>)}
+                        {player_data?.spottedAt && debug && (
+                            <Text
+                                position={[0, 4, 0]}
+                                scale={0.7}
+                            >
+                                Last Spotted:{" "}
+                                {
+                                    new Date(player_data?.spottedAt)
+                                        .toTimeString()
+                                        .split(" ")[0]
+                                }
+                            </Text>
+                        )}
 
-                        {player_data?.spottedAt && (<Text
-                            position={[0, 4, 0]}
-                            scale={0.7}
-                        >
-                            Last Spotted: {new Date(player_data?.spottedAt).toTimeString().split(' ')[0]}
-                        </Text>)}
-
-                        {player_data?.killedAt && (<Text
-                            position={[0, 5, 0]}
-                            scale={0.7}
-                        >
-                            Killed At: {new Date(player_data.killedAt).toTimeString().split(' ')[0]}
-                        </Text>)}
-
+                        {player_data?.killedAt && (
+                            <Text
+                                position={[0, 5, 0]}
+                                scale={0.7}
+                            >
+                                Killed At:{" "}
+                                {
+                                    new Date(player_data.killedAt)
+                                        .toTimeString()
+                                        .split(" ")[0]
+                                }
+                            </Text>
+                        )}
                     </Billboard>
 
                     <Character
@@ -243,19 +280,19 @@ export function Npc({ player_data }) {
                         action={currentAnimation}
                     />
 
-                    {lastSpotted &&
+                    {lastSpotted && (
                         <mesh>
-                            <cylinderGeometry args={[1, 1, 1, 8]} /> {/* Cylinder dimensions */}
+                            <cylinderGeometry args={[1, 1, 1, 8]} />{" "}
+                            {/* Cylinder dimensions */}
                             <meshStandardMaterial
-                                color={!player_data.dead ? 'blue' : 'red'}
+                                color={!player_data.dead ? "blue" : "red"}
                                 transparent={true}
                                 opacity={0.5}
                             />
                         </mesh>
-                    }
+                    )}
 
                     {/* <Outlines thickness={1} color="red" /> */}
-
                 </group>
             </RigidBody>
 

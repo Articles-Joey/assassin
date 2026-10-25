@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from "react";
 import { ModelAdventurer } from "../Models/players/Adventurer";
 import { ModelBeach } from "../Models/players/Beach";
 import { ModelCasual2 } from "../Models/players/Casual_2";
@@ -11,6 +12,16 @@ import { ModelSwat } from "../Models/players/Swat";
 import { ModelWorker } from "../Models/players/Worker";
 
 export default function Character({ type, scale, action }) {
+    const group = useRef();
+
+    useLayoutEffect(() => {
+        group.current?.traverse((object) => {
+            if (object.isMesh) {
+                object.castShadow = true;
+                object.receiveShadow = true;
+            }
+        });
+    }, [type]);
 
     function getModelComponent(type) {
         switch (type) {
@@ -44,8 +55,13 @@ export default function Character({ type, scale, action }) {
     const ModelComponent = getModelComponent(type);
 
     return (
-        <group>
-            {ModelComponent ? <ModelComponent scale={scale} action={action} /> : null}
+        <group ref={group}>
+            {ModelComponent ? (
+                <ModelComponent
+                    scale={scale}
+                    action={action}
+                />
+            ) : null}
         </group>
     );
 }

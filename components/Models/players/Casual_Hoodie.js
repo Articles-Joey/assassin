@@ -4,58 +4,114 @@ Command: npx gltfjsx@6.5.0 models\Casual_Hoodie.gltf --output output\Casual_Hood
 Files: models\Casual_Hoodie.gltf [3.1MB] > E:\Downloads\men\output\Casual_Hoodie-transformed.glb [756KB] (76%)
 */
 
-import React, { useEffect } from 'react'
-import * as THREE from 'three'
-import { useGraph } from '@react-three/fiber'
-import { useGLTF, useAnimations } from '@react-three/drei'
-import { SkeletonUtils } from 'three-stdlib'
+import React, { useEffect } from "react";
+import * as THREE from "three";
+import { useGraph } from "@react-three/fiber";
+import { useGLTF, useAnimations } from "@react-three/drei";
+import { SkeletonUtils } from "three-stdlib";
 
 export function ModelCasualHoodie(props) {
-  const group = React.useRef()
-  const { scene, animations } = useGLTF('models/Casual_Hoodie-transformed.glb')
-  const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene])
-  const { nodes, materials } = useGraph(clone)
-  const { actions } = useAnimations(animations, group)
+    const group = React.useRef();
+    const { scene, animations } = useGLTF(
+        "models/Casual_Hoodie-transformed.glb",
+    );
+    const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene]);
+    const { nodes, materials } = useGraph(clone);
+    const { actions } = useAnimations(animations, group);
 
-  useEffect(() => {
-    const action = actions[props.action];
-    if (action) {
-      action.reset().fadeIn(0.2).play();
-      if (props.action === 'Death') {
-        action.setLoop(THREE.LoopOnce, 1);
-        action.clampWhenFinished = true;
-      }
-      return () => action.fadeOut(0.2);
-    }
-  }, [props.action, actions]);
+    useEffect(() => {
+        const action = actions[props.action];
+        if (action) {
+            action.reset().fadeIn(0.2).play();
+            if (props.action === "Death") {
+                action.setLoop(THREE.LoopOnce, 1);
+                action.clampWhenFinished = true;
+            }
+            return () => action.fadeOut(0.2);
+        }
+    }, [props.action, actions]);
 
-  return (
-    <group ref={group} {...props} dispose={null}>
-      <group name="Scene">
-        <group name="CharacterArmature">
-          <primitive object={nodes.Root} />
+    return (
+        <group
+            ref={group}
+            {...props}
+            dispose={null}
+        >
+            <group name="Scene">
+                <group name="CharacterArmature">
+                    <primitive object={nodes.Root} />
+                </group>
+                <group name="Casual_Body">
+                    <skinnedMesh
+                        name="Cube008"
+                        geometry={nodes.Cube008.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube008.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube008_1"
+                        geometry={nodes.Cube008_1.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube008_1.skeleton}
+                    />
+                </group>
+                <group name="Casual_Feet">
+                    <skinnedMesh
+                        name="Cube000"
+                        geometry={nodes.Cube000.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube000.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube000_1"
+                        geometry={nodes.Cube000_1.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube000_1.skeleton}
+                    />
+                </group>
+                <group name="Casual_Head">
+                    <skinnedMesh
+                        name="Cube014"
+                        geometry={nodes.Cube014.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube014.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube014_1"
+                        geometry={nodes.Cube014_1.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube014_1.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube014_2"
+                        geometry={nodes.Cube014_2.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube014_2.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube014_3"
+                        geometry={nodes.Cube014_3.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube014_3.skeleton}
+                    />
+                </group>
+                <group name="Casual_Legs">
+                    <skinnedMesh
+                        name="Cube005"
+                        geometry={nodes.Cube005.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube005.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube005_1"
+                        geometry={nodes.Cube005_1.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube005_1.skeleton}
+                    />
+                </group>
+            </group>
         </group>
-        <group name="Casual_Body">
-          <skinnedMesh name="Cube008" geometry={nodes.Cube008.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube008.skeleton} />
-          <skinnedMesh name="Cube008_1" geometry={nodes.Cube008_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube008_1.skeleton} />
-        </group>
-        <group name="Casual_Feet">
-          <skinnedMesh name="Cube000" geometry={nodes.Cube000.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube000.skeleton} />
-          <skinnedMesh name="Cube000_1" geometry={nodes.Cube000_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube000_1.skeleton} />
-        </group>
-        <group name="Casual_Head">
-          <skinnedMesh name="Cube014" geometry={nodes.Cube014.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube014.skeleton} />
-          <skinnedMesh name="Cube014_1" geometry={nodes.Cube014_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube014_1.skeleton} />
-          <skinnedMesh name="Cube014_2" geometry={nodes.Cube014_2.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube014_2.skeleton} />
-          <skinnedMesh name="Cube014_3" geometry={nodes.Cube014_3.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube014_3.skeleton} />
-        </group>
-        <group name="Casual_Legs">
-          <skinnedMesh name="Cube005" geometry={nodes.Cube005.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube005.skeleton} />
-          <skinnedMesh name="Cube005_1" geometry={nodes.Cube005_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube005_1.skeleton} />
-        </group>
-      </group>
-    </group>
-  )
+    );
 }
 
-useGLTF.preload('models/Casual_Hoodie-transformed.glb')
+useGLTF.preload("models/Casual_Hoodie-transformed.glb");

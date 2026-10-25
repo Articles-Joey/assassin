@@ -4,65 +4,144 @@ Command: npx gltfjsx@6.5.0 models\Adventurer.gltf --output output\Adventurer.js 
 Files: models\Adventurer.gltf [3.67MB] > E:\Downloads\men\output\Adventurer-transformed.glb [781.59KB] (79%)
 */
 
-import React, { useEffect } from 'react'
-import * as THREE from 'three'
-import { useGraph } from '@react-three/fiber'
-import { useGLTF, useAnimations } from '@react-three/drei'
-import { SkeletonUtils } from 'three-stdlib'
+import React, { useEffect } from "react";
+import * as THREE from "three";
+import { useGraph } from "@react-three/fiber";
+import { useGLTF, useAnimations } from "@react-three/drei";
+import { SkeletonUtils } from "three-stdlib";
 
 export function ModelAdventurer(props) {
-  const group = React.useRef()
-  const { scene, animations } = useGLTF('models/Adventurer-transformed.glb')
-  const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene])
-  const { nodes, materials } = useGraph(clone)
-  const { actions } = useAnimations(animations, group)
+    const group = React.useRef();
+    const { scene, animations } = useGLTF("models/Adventurer-transformed.glb");
+    const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene]);
+    const { nodes, materials } = useGraph(clone);
+    const { actions } = useAnimations(animations, group);
 
-  useEffect(() => {
-    const action = actions[props.action];
-    if (action) {
-      action.reset().fadeIn(0.2).play();
-      if (props.action === 'Death') {
-        action.setLoop(THREE.LoopOnce, 1);
-        action.clampWhenFinished = true;
-      }
-      return () => action.fadeOut(0.2);
-    }
-  }, [props.action, actions]);
+    useEffect(() => {
+        const action = actions[props.action];
+        if (action) {
+            action.reset().fadeIn(0.2).play();
+            if (props.action === "Death") {
+                action.setLoop(THREE.LoopOnce, 1);
+                action.clampWhenFinished = true;
+            }
+            return () => action.fadeOut(0.2);
+        }
+    }, [props.action, actions]);
 
-  return (
-    <group ref={group} {...props} dispose={null}>
-      <group name="Scene">
-        <group name="CharacterArmature">
-          <primitive object={nodes.Root} />
+    return (
+        <group
+            ref={group}
+            {...props}
+            dispose={null}
+        >
+            <group name="Scene">
+                <group name="CharacterArmature">
+                    <primitive object={nodes.Root} />
+                </group>
+                <group name="Adventurer_Body">
+                    <skinnedMesh
+                        name="Cube063"
+                        geometry={nodes.Cube063.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube063.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube063_1"
+                        geometry={nodes.Cube063_1.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube063_1.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube063_2"
+                        geometry={nodes.Cube063_2.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube063_2.skeleton}
+                    />
+                </group>
+                <group name="Adventurer_Feet">
+                    <skinnedMesh
+                        name="Cube052"
+                        geometry={nodes.Cube052.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube052.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube052_1"
+                        geometry={nodes.Cube052_1.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube052_1.skeleton}
+                    />
+                </group>
+                <group name="Adventurer_Head">
+                    <skinnedMesh
+                        name="Cube039"
+                        geometry={nodes.Cube039.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube039.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube039_1"
+                        geometry={nodes.Cube039_1.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube039_1.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube039_2"
+                        geometry={nodes.Cube039_2.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube039_2.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube039_3"
+                        geometry={nodes.Cube039_3.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube039_3.skeleton}
+                    />
+                </group>
+                <group name="Adventurer_Legs">
+                    <skinnedMesh
+                        name="Cube020"
+                        geometry={nodes.Cube020.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube020.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube020_1"
+                        geometry={nodes.Cube020_1.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube020_1.skeleton}
+                    />
+                </group>
+                <group name="Backpack">
+                    <skinnedMesh
+                        name="Plane"
+                        geometry={nodes.Plane.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Plane.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Plane_1"
+                        geometry={nodes.Plane_1.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Plane_1.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Plane_2"
+                        geometry={nodes.Plane_2.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Plane_2.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Plane_3"
+                        geometry={nodes.Plane_3.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Plane_3.skeleton}
+                    />
+                </group>
+            </group>
         </group>
-        <group name="Adventurer_Body">
-          <skinnedMesh name="Cube063" geometry={nodes.Cube063.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube063.skeleton} />
-          <skinnedMesh name="Cube063_1" geometry={nodes.Cube063_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube063_1.skeleton} />
-          <skinnedMesh name="Cube063_2" geometry={nodes.Cube063_2.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube063_2.skeleton} />
-        </group>
-        <group name="Adventurer_Feet">
-          <skinnedMesh name="Cube052" geometry={nodes.Cube052.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube052.skeleton} />
-          <skinnedMesh name="Cube052_1" geometry={nodes.Cube052_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube052_1.skeleton} />
-        </group>
-        <group name="Adventurer_Head">
-          <skinnedMesh name="Cube039" geometry={nodes.Cube039.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube039.skeleton} />
-          <skinnedMesh name="Cube039_1" geometry={nodes.Cube039_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube039_1.skeleton} />
-          <skinnedMesh name="Cube039_2" geometry={nodes.Cube039_2.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube039_2.skeleton} />
-          <skinnedMesh name="Cube039_3" geometry={nodes.Cube039_3.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube039_3.skeleton} />
-        </group>
-        <group name="Adventurer_Legs">
-          <skinnedMesh name="Cube020" geometry={nodes.Cube020.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube020.skeleton} />
-          <skinnedMesh name="Cube020_1" geometry={nodes.Cube020_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube020_1.skeleton} />
-        </group>
-        <group name="Backpack">
-          <skinnedMesh name="Plane" geometry={nodes.Plane.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Plane.skeleton} />
-          <skinnedMesh name="Plane_1" geometry={nodes.Plane_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Plane_1.skeleton} />
-          <skinnedMesh name="Plane_2" geometry={nodes.Plane_2.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Plane_2.skeleton} />
-          <skinnedMesh name="Plane_3" geometry={nodes.Plane_3.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Plane_3.skeleton} />
-        </group>
-      </group>
-    </group>
-  )
+    );
 }
 
-useGLTF.preload('models/Adventurer-transformed.glb')
+useGLTF.preload("models/Adventurer-transformed.glb");

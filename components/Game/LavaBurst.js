@@ -1,7 +1,7 @@
-import { useRef, useState, useEffect, useMemo } from 'react';
-import { useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
-import { useStore } from '@/hooks/useStore';
+import { useRef, useState, useEffect, useMemo } from "react";
+import { useFrame } from "@react-three/fiber";
+import * as THREE from "three";
+import { useStore } from "@/hooks/useStore";
 
 const BURST_COUNT = 5;
 
@@ -22,19 +22,24 @@ function getRandomPosition(innerSize = 40, outerSize = 60) {
 function LowBurst({ color, innerSize, outerSize }) {
     const meshRef = useRef();
     const [bursting, setBursting] = useState(false);
-    const [position, setPosition] = useState(() => getRandomPosition(innerSize, outerSize));
+    const [position, setPosition] = useState(() =>
+        getRandomPosition(innerSize, outerSize),
+    );
 
     useEffect(() => {
         let timer;
         const schedule = () => {
-            timer = setTimeout(() => {
-                setPosition(getRandomPosition(innerSize, outerSize));
-                setBursting(true);
-                timer = setTimeout(() => {
-                    setBursting(false);
-                    schedule();
-                }, 1800);
-            }, Math.random() * 3000 + 2000);
+            timer = setTimeout(
+                () => {
+                    setPosition(getRandomPosition(innerSize, outerSize));
+                    setBursting(true);
+                    timer = setTimeout(() => {
+                        setBursting(false);
+                        schedule();
+                    }, 1800);
+                },
+                Math.random() * 3000 + 2000,
+            );
         };
         schedule();
         return () => clearTimeout(timer);
@@ -46,23 +51,34 @@ function LowBurst({ color, innerSize, outerSize }) {
         meshRef.current.position.y = THREE.MathUtils.lerp(
             meshRef.current.position.y,
             targetY,
-            2.5 * delta
+            2.5 * delta,
         );
         meshRef.current.position.x = position.x;
         meshRef.current.position.z = position.z;
     });
 
     return (
-        <mesh ref={meshRef} position={[position.x, -2.5, position.z]}>
+        <mesh
+            ref={meshRef}
+            position={[position.x, -2.5, position.z]}
+        >
             {[
-                { offset: 0,    size: 0.55, color: color,  intensity: 1.0 },
-                { offset: -0.5, size: 0.48, color: color,  intensity: 0.8 },
-                { offset: -1.0, size: 0.40, color: 'red',  intensity: 0.6 },
-                { offset: -1.5, size: 0.30, color: 'red',  intensity: 0.3 },
+                { offset: 0, size: 0.55, color: color, intensity: 1.0 },
+                { offset: -0.5, size: 0.48, color: color, intensity: 0.8 },
+                { offset: -1.0, size: 0.4, color: "red", intensity: 0.6 },
+                { offset: -1.5, size: 0.3, color: "red", intensity: 0.3 },
             ].map((c, i) => (
-                <mesh key={i} position={[0, c.offset, 0]} rotation={[Math.PI, 0, 0]}>
+                <mesh
+                    key={i}
+                    position={[0, c.offset, 0]}
+                    rotation={[Math.PI, 0, 0]}
+                >
                     <coneGeometry args={[c.size, 1.3, 8]} />
-                    <meshStandardMaterial color={c.color} emissive={c.color} emissiveIntensity={c.intensity} />
+                    <meshStandardMaterial
+                        color={c.color}
+                        emissive={c.color}
+                        emissiveIntensity={c.intensity}
+                    />
                 </mesh>
             ))}
         </mesh>
@@ -78,15 +94,17 @@ function ParticleBurst({ color, particleCount, innerSize, outerSize }) {
     const instancedRef = useRef();
     const basePosition = useRef(getRandomPosition(innerSize, outerSize));
 
-    const particles = useMemo(() =>
-        [...Array(particleCount)].map(() => ({
-            active: false,
-            position: new THREE.Vector3(),
-            velocity: new THREE.Vector3(),
-            life: 0,
-            maxLife: 0,
-        })),
-    [particleCount]);
+    const particles = useMemo(
+        () =>
+            [...Array(particleCount)].map(() => ({
+                active: false,
+                position: new THREE.Vector3(),
+                velocity: new THREE.Vector3(),
+                life: 0,
+                maxLife: 0,
+            })),
+        [particleCount],
+    );
 
     const triggerBurst = () => {
         basePosition.current = getRandomPosition(innerSize, outerSize);
@@ -100,7 +118,7 @@ function ParticleBurst({ color, particleCount, innerSize, outerSize }) {
                 basePosition.current.z + (Math.random() - 0.5) * 0.6,
             );
             const speed = Math.random() * 7 + 4;
-            const spread = (Math.random() * Math.PI * 0.35);
+            const spread = Math.random() * Math.PI * 0.35;
             const rotY = Math.random() * Math.PI * 2;
             p.velocity.set(
                 Math.sin(rotY) * Math.sin(spread) * speed * 0.6,
@@ -113,10 +131,13 @@ function ParticleBurst({ color, particleCount, innerSize, outerSize }) {
     useEffect(() => {
         let timer;
         const schedule = () => {
-            timer = setTimeout(() => {
-                triggerBurst();
-                schedule();
-            }, Math.random() * 3000 + 2000);
+            timer = setTimeout(
+                () => {
+                    triggerBurst();
+                    schedule();
+                },
+                Math.random() * 3000 + 2000,
+            );
         };
         triggerBurst();
         schedule();
@@ -155,26 +176,42 @@ function ParticleBurst({ color, particleCount, innerSize, outerSize }) {
     });
 
     return (
-        <instancedMesh ref={instancedRef} args={[_particleGeo, null, particleCount]}>
-            <meshStandardMaterial color={color} emissive={color} emissiveIntensity={2} />
+        <instancedMesh
+            ref={instancedRef}
+            args={[_particleGeo, null, particleCount]}
+        >
+            <meshStandardMaterial
+                color={color}
+                emissive={color}
+                emissiveIntensity={2}
+            />
         </instancedMesh>
     );
 }
 
 // ─── ROOT ─────────────────────────────────────────────────────────────────────
 
-export default function LavaBurst({ color = 'orange' }) {
+export default function LavaBurst({ color = "orange" }) {
     const graphicsQuality = useStore((state) => state.graphicsQuality);
 
-    const particleCount = graphicsQuality === 'High' ? 40 : 20;
-    const BurstComponent = graphicsQuality === 'Low' ? LowBurst : ParticleBurst;
+    const particleCount = graphicsQuality === "High" ? 40 : 20;
+    const BurstComponent = graphicsQuality === "Low" ? LowBurst : ParticleBurst;
 
     return (
         <group>
             {[...Array(BURST_COUNT)].map((_, i) =>
-                graphicsQuality === 'Low'
-                    ? <LowBurst key={i} color={color} />
-                    : <ParticleBurst key={i} color={color} particleCount={particleCount} />
+                graphicsQuality === "Low" ? (
+                    <LowBurst
+                        key={i}
+                        color={color}
+                    />
+                ) : (
+                    <ParticleBurst
+                        key={i}
+                        color={color}
+                        particleCount={particleCount}
+                    />
+                ),
             )}
         </group>
     );

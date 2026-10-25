@@ -4,58 +4,122 @@ Command: npx gltfjsx@6.5.0 models\Farmer.gltf --output output\Farmer.js --transf
 Files: models\Farmer.gltf [3MB] > E:\Downloads\men\output\Farmer-transformed.glb [756.64KB] (75%)
 */
 
-import React, { useEffect } from 'react'
-import * as THREE from 'three'
-import { useGraph } from '@react-three/fiber'
-import { useGLTF, useAnimations } from '@react-three/drei'
-import { SkeletonUtils } from 'three-stdlib'
+import React, { useEffect } from "react";
+import * as THREE from "three";
+import { useGraph } from "@react-three/fiber";
+import { useGLTF, useAnimations } from "@react-three/drei";
+import { SkeletonUtils } from "three-stdlib";
 
 export function ModelFarmer(props) {
-  const group = React.useRef()
-  const { scene, animations } = useGLTF('models/Farmer-transformed.glb')
-  const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene])
-  const { nodes, materials } = useGraph(clone)
-  const { actions } = useAnimations(animations, group)
+    const group = React.useRef();
+    const { scene, animations } = useGLTF("models/Farmer-transformed.glb");
+    const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene]);
+    const { nodes, materials } = useGraph(clone);
+    const { actions } = useAnimations(animations, group);
 
-  useEffect(() => {
-    const action = actions[props.action];
-    if (action) {
-      action.reset().fadeIn(0.2).play();
-      if (props.action === 'Death') {
-        action.setLoop(THREE.LoopOnce, 1);
-        action.clampWhenFinished = true;
-      }
-      return () => action.fadeOut(0.2);
-    }
-  }, [props.action, actions]);
+    useEffect(() => {
+        const action = actions[props.action];
+        if (action) {
+            action.reset().fadeIn(0.2).play();
+            if (props.action === "Death") {
+                action.setLoop(THREE.LoopOnce, 1);
+                action.clampWhenFinished = true;
+            }
+            return () => action.fadeOut(0.2);
+        }
+    }, [props.action, actions]);
 
-  return (
-    <group ref={group} {...props} dispose={null}>
-      <group name="Scene">
-        <group name="CharacterArmature">
-          <primitive object={nodes.Root} />
+    return (
+        <group
+            ref={group}
+            {...props}
+            dispose={null}
+        >
+            <group name="Scene">
+                <group name="CharacterArmature">
+                    <primitive object={nodes.Root} />
+                </group>
+                <group name="Farmer_Body">
+                    <skinnedMesh
+                        name="Cube036"
+                        geometry={nodes.Cube036.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube036.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube036_1"
+                        geometry={nodes.Cube036_1.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube036_1.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube036_2"
+                        geometry={nodes.Cube036_2.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube036_2.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube036_3"
+                        geometry={nodes.Cube036_3.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube036_3.skeleton}
+                    />
+                </group>
+                <group name="Farmer_Feet">
+                    <skinnedMesh
+                        name="Cube035"
+                        geometry={nodes.Cube035.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube035.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube035_1"
+                        geometry={nodes.Cube035_1.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube035_1.skeleton}
+                    />
+                </group>
+                <group name="Farmer_Head">
+                    <skinnedMesh
+                        name="Cube032"
+                        geometry={nodes.Cube032.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube032.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube032_1"
+                        geometry={nodes.Cube032_1.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube032_1.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube032_2"
+                        geometry={nodes.Cube032_2.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube032_2.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube032_3"
+                        geometry={nodes.Cube032_3.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube032_3.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube032_4"
+                        geometry={nodes.Cube032_4.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube032_4.skeleton}
+                    />
+                </group>
+                <skinnedMesh
+                    name="Farmer_Pants"
+                    geometry={nodes.Farmer_Pants.geometry}
+                    material={materials.PaletteMaterial001}
+                    skeleton={nodes.Farmer_Pants.skeleton}
+                />
+            </group>
         </group>
-        <group name="Farmer_Body">
-          <skinnedMesh name="Cube036" geometry={nodes.Cube036.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube036.skeleton} />
-          <skinnedMesh name="Cube036_1" geometry={nodes.Cube036_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube036_1.skeleton} />
-          <skinnedMesh name="Cube036_2" geometry={nodes.Cube036_2.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube036_2.skeleton} />
-          <skinnedMesh name="Cube036_3" geometry={nodes.Cube036_3.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube036_3.skeleton} />
-        </group>
-        <group name="Farmer_Feet">
-          <skinnedMesh name="Cube035" geometry={nodes.Cube035.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube035.skeleton} />
-          <skinnedMesh name="Cube035_1" geometry={nodes.Cube035_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube035_1.skeleton} />
-        </group>
-        <group name="Farmer_Head">
-          <skinnedMesh name="Cube032" geometry={nodes.Cube032.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube032.skeleton} />
-          <skinnedMesh name="Cube032_1" geometry={nodes.Cube032_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube032_1.skeleton} />
-          <skinnedMesh name="Cube032_2" geometry={nodes.Cube032_2.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube032_2.skeleton} />
-          <skinnedMesh name="Cube032_3" geometry={nodes.Cube032_3.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube032_3.skeleton} />
-          <skinnedMesh name="Cube032_4" geometry={nodes.Cube032_4.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube032_4.skeleton} />
-        </group>
-        <skinnedMesh name="Farmer_Pants" geometry={nodes.Farmer_Pants.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Farmer_Pants.skeleton} />
-      </group>
-    </group>
-  )
+    );
 }
 
-useGLTF.preload('models/Farmer-transformed.glb')
+useGLTF.preload("models/Farmer-transformed.glb");

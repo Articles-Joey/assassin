@@ -1,22 +1,21 @@
 "use client";
 import { useSocketStore } from "@/hooks/useSocketStore";
-import ArticlesButton from "./Button"
+import ArticlesButton from "./Button";
 import { useSearchParams } from "next/navigation";
 import { useGameStore } from "@/hooks/useGameStore";
 import { useMemo, useEffect, useRef } from "react";
-import Box from '@mui/material/Box';
+import Box from "@mui/material/Box";
 
-export default function waaaaaaaaaa({
-    status = null
-}) {
-
-    const searchParams = useSearchParams()
+export default function waaaaaaaaaa({ status = null }) {
+    const searchParams = useSearchParams();
     const params = Object.fromEntries(searchParams.entries());
-    const { server, local_play } = params
+    const { server, local_play } = params;
 
-    const playerCount = useGameStore(state => state.gameState.players?.length || 0);
+    const playerCount = useGameStore(
+        (state) => state.gameState.players?.length || 0,
+    );
 
-    const socket = useSocketStore(state => state.socket);
+    const socket = useSocketStore((state) => state.socket);
 
     const isLocalPlayDisabled = useMemo(() => {
         if (!local_play) return false;
@@ -29,24 +28,23 @@ export default function waaaaaaaaaa({
     const aWasPressed = useRef(false);
 
     const handleStartGame = () => {
-        console.log("handleStartGame called")
+        console.log("handleStartGame called");
 
         if (socket) {
-            socket.emit('game:death-race:start-game', {
+            socket.emit("game:death-race:start-game", {
                 server_id: server,
-                status: status
-            })
+                status: status,
+            });
         }
 
         if (local_play) {
-
             const gameState = useGameStore.getState().gameState;
             const setGameState = useGameStore.getState().setGameState;
 
             setGameState({
                 ...gameState,
                 status: status || "In Progress",
-            })
+            });
         }
     };
 
@@ -55,11 +53,15 @@ export default function waaaaaaaaaa({
         const effectiveDisabled = false;
         let rafId = 0;
         const loop = () => {
-            const pads = navigator.getGamepads ? Array.from(navigator.getGamepads()).filter(Boolean) : [];
+            const pads = navigator.getGamepads
+                ? Array.from(navigator.getGamepads()).filter(Boolean)
+                : [];
             if (pads.length > 0 && !effectiveDisabled) {
                 const gp = pads[0];
                 const aBtn = gp.buttons[0];
-                const aPressed = aBtn ? (aBtn.value > 0.5 || aBtn.pressed) : false;
+                const aPressed = aBtn
+                    ? aBtn.value > 0.5 || aBtn.pressed
+                    : false;
                 if (aPressed && !aWasPressed.current) {
                     if (gameState?.status === "In Lobby") {
                         console.log("gameState?.status", gameState?.status);
@@ -78,25 +80,29 @@ export default function waaaaaaaaaa({
 
     return (
         <Box>
-
             <ArticlesButton
                 small
-                sx={{ width: '100%' }}
+                sx={{ width: "100%" }}
                 variant={"success"}
-                disabled={process.env.NODE_ENV === "production" ? isDisabled : false}
-                onClick={() => { handleStartGame(); }}
+                disabled={
+                    process.env.NODE_ENV === "production" ? isDisabled : false
+                }
+                onClick={() => {
+                    handleStartGame();
+                }}
             >
                 <span>Start Game</span>
             </ArticlesButton>
 
-            {playerCount <= 1 && <Box
-                sx={{
-                    fontSize: '0.8rem',
-                }}
-            >
-                Need two players to start!
-            </Box>}
-
+            {playerCount <= 1 && (
+                <Box
+                    sx={{
+                        fontSize: "0.8rem",
+                    }}
+                >
+                    Need two players to start!
+                </Box>
+            )}
         </Box>
-    )
+    );
 }

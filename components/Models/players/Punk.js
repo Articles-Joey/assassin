@@ -4,61 +4,130 @@ Command: npx gltfjsx@6.5.0 models\Punk.gltf --output output\Punk.js --transform
 Files: models\Punk.gltf [3MB] > E:\Downloads\men\output\Punk-transformed.glb [755.92KB] (75%)
 */
 
-import React, { useEffect } from 'react'
-import * as THREE from 'three'
-import { useGraph } from '@react-three/fiber'
-import { useGLTF, useAnimations } from '@react-three/drei'
-import { SkeletonUtils } from 'three-stdlib'
+import React, { useEffect } from "react";
+import * as THREE from "three";
+import { useGraph } from "@react-three/fiber";
+import { useGLTF, useAnimations } from "@react-three/drei";
+import { SkeletonUtils } from "three-stdlib";
 
 export function ModelPunk(props) {
-  const group = React.useRef()
-  const { scene, animations } = useGLTF('models/Punk-transformed.glb')
-  const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene])
-  const { nodes, materials } = useGraph(clone)
-  const { actions } = useAnimations(animations, group)
+    const group = React.useRef();
+    const { scene, animations } = useGLTF("models/Punk-transformed.glb");
+    const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene]);
+    const { nodes, materials } = useGraph(clone);
+    const { actions } = useAnimations(animations, group);
 
-  useEffect(() => {
-    const action = actions[props.action];
-    if (action) {
-      action.reset().fadeIn(0.2).play();
-      if (props.action === 'Death') {
-        action.setLoop(THREE.LoopOnce, 1);
-        action.clampWhenFinished = true;
-      }
-      return () => action.fadeOut(0.2);
-    }
-  }, [props.action, actions]);
+    useEffect(() => {
+        const action = actions[props.action];
+        if (action) {
+            action.reset().fadeIn(0.2).play();
+            if (props.action === "Death") {
+                action.setLoop(THREE.LoopOnce, 1);
+                action.clampWhenFinished = true;
+            }
+            return () => action.fadeOut(0.2);
+        }
+    }, [props.action, actions]);
 
-  return (
-    <group ref={group} {...props} dispose={null}>
-      <group name="Scene">
-        <group name="CharacterArmature">
-          <primitive object={nodes.Root} />
+    return (
+        <group
+            ref={group}
+            {...props}
+            dispose={null}
+        >
+            <group name="Scene">
+                <group name="CharacterArmature">
+                    <primitive object={nodes.Root} />
+                </group>
+                <group name="Punk_Body">
+                    <skinnedMesh
+                        name="Cube001"
+                        geometry={nodes.Cube001.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube001.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube001_1"
+                        geometry={nodes.Cube001_1.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube001_1.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube001_2"
+                        geometry={nodes.Cube001_2.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube001_2.skeleton}
+                    />
+                </group>
+                <group name="Punk_Feet">
+                    <skinnedMesh
+                        name="Cube208"
+                        geometry={nodes.Cube208.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube208.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube208_1"
+                        geometry={nodes.Cube208_1.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube208_1.skeleton}
+                    />
+                </group>
+                <group name="Punk_Head">
+                    <skinnedMesh
+                        name="Cube026"
+                        geometry={nodes.Cube026.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube026.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube026_1"
+                        geometry={nodes.Cube026_1.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube026_1.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube026_2"
+                        geometry={nodes.Cube026_2.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube026_2.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube026_3"
+                        geometry={nodes.Cube026_3.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube026_3.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube026_4"
+                        geometry={nodes.Cube026_4.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube026_4.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube026_5"
+                        geometry={nodes.Cube026_5.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube026_5.skeleton}
+                    />
+                </group>
+                <group name="Punk_Legs">
+                    <skinnedMesh
+                        name="Cube009"
+                        geometry={nodes.Cube009.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube009.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube009_1"
+                        geometry={nodes.Cube009_1.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube009_1.skeleton}
+                    />
+                </group>
+            </group>
         </group>
-        <group name="Punk_Body">
-          <skinnedMesh name="Cube001" geometry={nodes.Cube001.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube001.skeleton} />
-          <skinnedMesh name="Cube001_1" geometry={nodes.Cube001_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube001_1.skeleton} />
-          <skinnedMesh name="Cube001_2" geometry={nodes.Cube001_2.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube001_2.skeleton} />
-        </group>
-        <group name="Punk_Feet">
-          <skinnedMesh name="Cube208" geometry={nodes.Cube208.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube208.skeleton} />
-          <skinnedMesh name="Cube208_1" geometry={nodes.Cube208_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube208_1.skeleton} />
-        </group>
-        <group name="Punk_Head">
-          <skinnedMesh name="Cube026" geometry={nodes.Cube026.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube026.skeleton} />
-          <skinnedMesh name="Cube026_1" geometry={nodes.Cube026_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube026_1.skeleton} />
-          <skinnedMesh name="Cube026_2" geometry={nodes.Cube026_2.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube026_2.skeleton} />
-          <skinnedMesh name="Cube026_3" geometry={nodes.Cube026_3.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube026_3.skeleton} />
-          <skinnedMesh name="Cube026_4" geometry={nodes.Cube026_4.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube026_4.skeleton} />
-          <skinnedMesh name="Cube026_5" geometry={nodes.Cube026_5.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube026_5.skeleton} />
-        </group>
-        <group name="Punk_Legs">
-          <skinnedMesh name="Cube009" geometry={nodes.Cube009.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube009.skeleton} />
-          <skinnedMesh name="Cube009_1" geometry={nodes.Cube009_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube009_1.skeleton} />
-        </group>
-      </group>
-    </group>
-  )
+    );
 }
 
-useGLTF.preload('models/Punk-transformed.glb')
+useGLTF.preload("models/Punk-transformed.glb");

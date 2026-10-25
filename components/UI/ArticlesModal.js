@@ -47,13 +47,20 @@ export default function ArticlesModal({
             hideBackdrop={backdrop === false}
             disableEscapeKeyDown={Boolean(disableClose)}
             onClose={(_, reason) => {
-                if (disableClose || (backdrop === "static" && reason === "backdropClick")) return;
+                if (
+                    disableClose ||
+                    (backdrop === "static" && reason === "backdropClick")
+                )
+                    return;
                 close();
             }}
             slotProps={{
                 paper: {
                     sx: {
-                        ...(centered === false && { alignSelf: "flex-start", mt: 4 }),
+                        ...(centered === false && {
+                            alignSelf: "flex-start",
+                            mt: 4,
+                        }),
                     },
                 },
                 transition: {
@@ -64,23 +71,42 @@ export default function ArticlesModal({
                 },
             }}
         >
-            <DialogTitle id={titleId} sx={{ pr: disableClose ? 3 : 7 }}>
+            <DialogTitle
+                id={titleId}
+                sx={{ pr: disableClose ? 3 : 7 }}
+            >
                 {title || "Info"}
                 {!disableClose && (
-                    <IconButton aria-label="Close dialog" onClick={close} sx={{ position: "absolute", right: 8, top: 8 }}>
+                    <IconButton
+                        aria-label="Close dialog"
+                        onClick={close}
+                        sx={{ position: "absolute", right: 8, top: 8 }}
+                    >
                         <CloseIcon />
                     </IconButton>
                 )}
             </DialogTitle>
-            <DialogContent className={className} sx={contentSx}>{children ?? "..."}</DialogContent>
+            <DialogContent
+                className={className}
+                sx={contentSx}
+            >
+                {children ?? "..."}
+            </DialogContent>
             <DialogActions sx={{ justifyContent: "space-between" }}>
                 {footerOverride ? (
-                    typeof footerOverride === "function" ? footerOverride(setOpen) : footerOverride
+                    typeof footerOverride === "function" ? (
+                        footerOverride(setOpen)
+                    ) : (
+                        footerOverride
+                    )
                 ) : (
                     <>
                         {!action && <Box />}
                         {(!disableClose || closeAction) && (
-                            <ArticlesButton variant="outline-dark" onClick={closeAction || close}>
+                            <ArticlesButton
+                                variant="outline-dark"
+                                onClick={closeAction || close}
+                            >
                                 {closeText || "Close"}
                             </ArticlesButton>
                         )}

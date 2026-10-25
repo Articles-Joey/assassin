@@ -4,60 +4,124 @@ Command: npx gltfjsx@6.5.0 models\Swat.gltf --output output\Swat.js --transform
 Files: models\Swat.gltf [3.37MB] > E:\Downloads\men\output\Swat-transformed.glb [772.98KB] (77%)
 */
 
-import React, { useEffect } from 'react'
-import * as THREE from 'three'
-import { useGraph } from '@react-three/fiber'
-import { useGLTF, useAnimations } from '@react-three/drei'
-import { SkeletonUtils } from 'three-stdlib'
+import React, { useEffect } from "react";
+import * as THREE from "three";
+import { useGraph } from "@react-three/fiber";
+import { useGLTF, useAnimations } from "@react-three/drei";
+import { SkeletonUtils } from "three-stdlib";
 
 export function ModelSwat(props) {
-  const group = React.useRef()
-  const { scene, animations } = useGLTF('models/Swat-transformed.glb')
-  const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene])
-  const { nodes, materials } = useGraph(clone)
-  const { actions } = useAnimations(animations, group)
+    const group = React.useRef();
+    const { scene, animations } = useGLTF("models/Swat-transformed.glb");
+    const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene]);
+    const { nodes, materials } = useGraph(clone);
+    const { actions } = useAnimations(animations, group);
 
-  useEffect(() => {
-    const action = actions[props.action];
-    if (action) {
-      action.reset().fadeIn(0.2).play();
-      if (props.action === 'Death') {
-        action.setLoop(THREE.LoopOnce, 1);
-        action.clampWhenFinished = true;
-      }
-      return () => action.fadeOut(0.2);
-    }
-  }, [props.action, actions]);
+    useEffect(() => {
+        const action = actions[props.action];
+        if (action) {
+            action.reset().fadeIn(0.2).play();
+            if (props.action === "Death") {
+                action.setLoop(THREE.LoopOnce, 1);
+                action.clampWhenFinished = true;
+            }
+            return () => action.fadeOut(0.2);
+        }
+    }, [props.action, actions]);
 
-  return (
-    <group ref={group} {...props} dispose={null}>
-      <group name="Scene">
-        <group name="CharacterArmature">
-          <primitive object={nodes.Root} />
+    return (
+        <group
+            ref={group}
+            {...props}
+            dispose={null}
+        >
+            <group name="Scene">
+                <group name="CharacterArmature">
+                    <primitive object={nodes.Root} />
+                </group>
+                <group name="Pistol">
+                    <skinnedMesh
+                        name="Cube204"
+                        geometry={nodes.Cube204.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube204.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube204_1"
+                        geometry={nodes.Cube204_1.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube204_1.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube204_2"
+                        geometry={nodes.Cube204_2.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube204_2.skeleton}
+                    />
+                </group>
+                <group name="Swat_Body">
+                    <skinnedMesh
+                        name="Cube018"
+                        geometry={nodes.Cube018.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube018.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube018_1"
+                        geometry={nodes.Cube018_1.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube018_1.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube018_2"
+                        geometry={nodes.Cube018_2.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube018_2.skeleton}
+                    />
+                </group>
+                <skinnedMesh
+                    name="Swat_Feet"
+                    geometry={nodes.Swat_Feet.geometry}
+                    material={materials.PaletteMaterial001}
+                    skeleton={nodes.Swat_Feet.skeleton}
+                />
+                <group name="Swat_Head">
+                    <skinnedMesh
+                        name="Cube037"
+                        geometry={nodes.Cube037.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube037.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube037_1"
+                        geometry={nodes.Cube037_1.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube037_1.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube037_2"
+                        geometry={nodes.Cube037_2.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube037_2.skeleton}
+                    />
+                </group>
+                <group name="Swat_Legs">
+                    <skinnedMesh
+                        name="Cube023"
+                        geometry={nodes.Cube023.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube023.skeleton}
+                    />
+                    <skinnedMesh
+                        name="Cube023_1"
+                        geometry={nodes.Cube023_1.geometry}
+                        material={materials.PaletteMaterial001}
+                        skeleton={nodes.Cube023_1.skeleton}
+                    />
+                </group>
+            </group>
         </group>
-        <group name="Pistol">
-          <skinnedMesh name="Cube204" geometry={nodes.Cube204.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube204.skeleton} />
-          <skinnedMesh name="Cube204_1" geometry={nodes.Cube204_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube204_1.skeleton} />
-          <skinnedMesh name="Cube204_2" geometry={nodes.Cube204_2.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube204_2.skeleton} />
-        </group>
-        <group name="Swat_Body">
-          <skinnedMesh name="Cube018" geometry={nodes.Cube018.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube018.skeleton} />
-          <skinnedMesh name="Cube018_1" geometry={nodes.Cube018_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube018_1.skeleton} />
-          <skinnedMesh name="Cube018_2" geometry={nodes.Cube018_2.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube018_2.skeleton} />
-        </group>
-        <skinnedMesh name="Swat_Feet" geometry={nodes.Swat_Feet.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Swat_Feet.skeleton} />
-        <group name="Swat_Head">
-          <skinnedMesh name="Cube037" geometry={nodes.Cube037.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube037.skeleton} />
-          <skinnedMesh name="Cube037_1" geometry={nodes.Cube037_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube037_1.skeleton} />
-          <skinnedMesh name="Cube037_2" geometry={nodes.Cube037_2.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube037_2.skeleton} />
-        </group>
-        <group name="Swat_Legs">
-          <skinnedMesh name="Cube023" geometry={nodes.Cube023.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube023.skeleton} />
-          <skinnedMesh name="Cube023_1" geometry={nodes.Cube023_1.geometry} material={materials.PaletteMaterial001} skeleton={nodes.Cube023_1.skeleton} />
-        </group>
-      </group>
-    </group>
-  )
+    );
 }
 
-useGLTF.preload('models/Swat-transformed.glb')
+useGLTF.preload("models/Swat-transformed.glb");

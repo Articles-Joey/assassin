@@ -33,17 +33,21 @@ export function createAppTheme(mode = "dark") {
             MuiAlert: {
                 styleOverrides: {
                     root: {
-                        variants: [{
-                            props: { severity: "info" },
-                            style: { backgroundColor: "#60a5fa" },
-                        }],
+                        variants: [
+                            {
+                                props: { severity: "info" },
+                                style: { backgroundColor: "#60a5fa" },
+                            },
+                        ],
                     },
                 },
             },
             MuiCssBaseline: {
                 // Shared dev-box components still use compatibility utilities internally.
                 styleOverrides: (muiTheme) => ({
-                    ...bootstrapCompatibilityTheme.MuiCssBaseline.styleOverrides(muiTheme),
+                    ...bootstrapCompatibilityTheme.MuiCssBaseline.styleOverrides(
+                        muiTheme,
+                    ),
                     "@font-face": {
                         fontFamily: "Sword",
                         src: 'url("/font/Sword.ttf") format("truetype")',
@@ -53,7 +57,8 @@ export function createAppTheme(mode = "dark") {
                     },
                     ":root": {
                         "--card-background-override": cardBackground,
-                        "--articles-card-font-color": mode === "dark" ? "#fff" : "#212529",
+                        "--articles-card-font-color":
+                            mode === "dark" ? "#fff" : "#212529",
                     },
                     ".stats-overlay": {
                         position: "fixed",
